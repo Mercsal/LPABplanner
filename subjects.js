@@ -1,9 +1,31 @@
 // A discrete list of subjects. 
 // Adding a new subject here automatically makes it available in the UI.
 export const subjects = [
-    { id: 'L01', name: 'Legal Institutions', terms: ['winter', 'summer'], lecture: 'Monday', exam: '2026-06-01T09:00' },
-    { id: 'L02', name: 'Contracts', terms: ['winter'], lecture: 'Tuesday', exam: '2026-06-02T14:00' },
-    { id: 'L03', name: 'Torts', terms: ['summer'], lecture: 'Monday', exam: '2026-11-15T09:00' },
-    { id: 'L04', name: 'Real Property', terms: ['winter'], lecture: 'Wednesday', exam: '2026-06-05T09:00' },
-    // Logic will handle "both" by checking if the term is in the array
+    { id: '01', name: 'Foundations of Law', terms: ['winter', 'summer'], lecture: 'Wednesday', exam: null }, // [cite: 11]
+    { id: '02', name: 'Criminal Law and Procedure', terms: ['winter', 'summer'], lecture: 'Tuesday', exam: null }, // [cite: 11]
+    { id: '03', name: 'Torts', terms: ['winter', 'summer'], lecture: 'Monday', exam: null }, // [cite: 11]
+    { id: '04', name: 'Contracts', terms: ['winter', 'summer'], lecture: 'Tuesday', exam: null }, // [cite: 11]
+    { id: '05', name: 'Real Property', terms: ['winter', 'summer'], lecture: 'Thursday', exam: null }, // [cite: 11]
+    { id: '06', name: 'Constitutional Law', terms: ['winter', 'summer'], lecture: 'Tuesday', exam: null }, // [cite: 11]
+    { id: '07', name: 'Equity', terms: ['winter', 'summer'], lecture: 'Monday', exam: null }, // [cite: 11]
+    { id: '08', name: 'Commercial Transactions', terms: ['winter', 'summer'], lecture: 'Tuesday', exam: null }, // [cite: 11]
+    { id: '09', name: 'Administrative Law', terms: ['winter', 'summer'], lecture: 'Wednesday', exam: null }, // [cite: 11]
+    { id: '10', name: 'Law of Associations', terms: ['winter', 'summer'], lecture: 'Thursday', exam: null }, // [cite: 11]
+    { id: '11', name: 'Evidence', terms: ['winter', 'summer'], lecture: 'Monday', exam: null }, // [cite: 11]
+    { id: '12', name: 'Taxation', terms: ['winter', 'summer'], lecture: 'Tuesday', exam: null }, // [cite: 11]
+    { id: '13', name: 'Succession', terms: ['winter', 'summer'], lecture: 'Wednesday', exam: null }, // [cite: 11]
+    { id: '14', name: 'Conveyancing', terms: ['winter', 'summer'], lecture: 'Monday', exam: null }, // [cite: 11]
+    { id: '15', name: 'Practice and Procedure', terms: ['winter', 'summer'], lecture: 'Thursday', exam: null }, // [cite: 12]
+    { id: '16', name: 'Insolvency', terms: ['winter', 'summer'], lecture: 'Wednesday', exam: null }, // [cite: 12]
+    { id: '17', name: 'Legal Ethics', terms: ['winter', 'summer'], lecture: 'Wednesday', exam: null }, // [cite: 12]
+    { id: '18', name: 'Conflict of Laws', terms: ['summer'], lecture: 'Thursday', exam: null }, // [cite: 12]
+    { id: '19', name: 'Family Law', terms: ['summer'], lecture: 'Wednesday', exam: null }, // [cite: 12]
+    { id: '20', name: 'Planning & Environment Law', terms: ['winter'], lecture: 'Thursday', exam: null }, // [cite: 12]
+    { id: '21', name: 'Industrial Law', terms: ['summer'], lecture: 'Monday', exam: null }, // [cite: 12]
+    { id: '22', name: 'Intellectual Property', terms: ['winter'], lecture: 'Tuesday', exam: null }, // [cite: 12]
+    { id: '23', name: 'Public International Law', terms: ['winter'], lecture: 'Thursday', exam: null }, // [cite: 12]
+    { id: '24', name: 'Jurisprudence', terms: ['winter', 'summer'], lecture: 'Thursday', exam: null }, // [cite: 12]
+    { id: '25', name: 'Competition and Consumer Law', terms: ['summer'], lecture: 'Tuesday', exam: null }, // [cite: 12]
+    { id: '26', name: 'Advanced Statutory Interpretation', terms: ['winter'], lecture: 'Monday', exam: null }, // [cite: 12]
+    { id: '27', name: 'Health Law', terms: ['summer'], lecture: 'Monday', exam: null } // [cite: 12]
 ];
