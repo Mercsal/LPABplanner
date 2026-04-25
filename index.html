@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPAB Elective Planner</title>
+    <style>
+        /* Basic Structural CSS */
+        body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; background-color: #f4f4f5; }
+        
+        /* The Pool of available subjects */
+        #subject-pool { width: 300px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .subject-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; cursor: pointer; background: #fafafa; }
+        
+        /* The Planner Board */
+        #planner-board { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Semester Cards */
+        .semester-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .semester-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .slot { border: 2px dashed #ccc; height: 80px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #888; }
+        
+        /* Feedback Panel */
+        #feedback-panel { padding: 15px; border-radius: 8px; display: none; }
+        .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    </style>
+</head>
+<body>
+
+    <aside id="subject-pool">
+        <h2>Available Subjects</h2>
+        <div id="subject-list">
+            </div>
+    </aside>
+
+    <main id="planner-board">
+        
+        <div id="feedback-panel" class="error">
+            <ul id="error-list"></ul>
+        </div>
+
+        <section class="semester-card" id="completed-section" data-semester-id="completed">
+            <h2>Already Completed</h2>
+            <p style="font-size: 0.85em; color: #666;">Subjects placed here bypass clash detection.</p>
+            <div class="semester-slots" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+                </div>
+        </section>
+
+        <section class="semester-card" id="winter-2026" data-semester-id="winter2026">
+            <h2>Winter 2026</h2>
+            <div class="semester-slots">
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+            </div>
+        </section>
+
+        <section class="semester-card" id="summer-2026" data-semester-id="summer2026">
+            <h2>Summer 2026</h2>
+            <div class="semester-slots">
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+                <div class="slot">Empty Slot</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="ui.js"></script>
+</body>
+</html>
