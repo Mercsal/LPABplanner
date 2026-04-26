@@ -1,0 +1,99 @@
+/* planner.css — all visual state classes for slots, pool items, and drag targets */
+
+/* ─── Subject type: slot & pool item ─────────────────────────── */
+.slot--compulsory {
+    border-color: #4ade80;
+    background-color: #f0fdf4;
+    color: #1e293b;
+}
+
+.slot--elective {
+    border-color: #38bdf8;
+    background-color: #f0f9ff;
+    color: #1e293b;
+}
+
+.pool-item--compulsory {
+    border-color: #4ade80;
+    background-color: #f0fdf4;
+}
+
+.pool-item--elective {
+    border-color: #38bdf8;
+    background-color: #f0f9ff;
+}
+
+/* ─── Clash state ─────────────────────────────────────────────── */
+.slot--clash {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    color: #7f1d1d;
+}
+
+/* ─── Drag-over highlight ─────────────────────────────────────── */
+.drag-over {
+    background-color: #e2e8f0;
+}
+
+/* ─── Slot inner text elements ────────────────────────────────── */
+.slot__type {
+    font-size: 0.7em;
+    text-transform: uppercase;
+}
+
+.slot__lecture {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #475569;
+    margin-top: 6px;
+}
+
+.slot__exam {
+    font-size: 0.8em;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.slot__clash-warning {
+    font-size: 0.75em;
+    color: #dc2626;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.slot__actions {
+    margin-top: 8px;
+}
+
+.slot__btn--done {
+    font-size: 0.8em;
+    cursor: pointer;
+    color: #16a34a;
+    margin-right: 15px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.slot__btn--remove {
+    font-size: 0.8em;
+    cursor: pointer;
+    color: #ef4444;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* ─── Empty state placeholder ─────────────────────────────────── */
+.slots__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px;
+}
+
+/* ─── Feedback panel ──────────────────────────────────────────── */
+.feedback--visible {
+    display: block;
+}

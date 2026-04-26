@@ -14,13 +14,10 @@ export function renderSubjectPool() {
         if (isPlanned) return;
 
         const div = document.createElement('div');
-        div.className = 'subject-item';
+        const sType = subject.type.toLowerCase();
+        div.className = `subject-item ${sType === 'compulsory' ? 'pool-item--compulsory' : 'pool-item--elective'}`;
         div.draggable = true;
         div.title = 'Drag to a semester, or Double-Click to mark as Completed';
-
-        const sType = subject.type.toLowerCase();
-        div.style.borderColor = sType === 'compulsory' ? '#4ade80' : '#38bdf8';
-        div.style.backgroundColor = sType === 'compulsory' ? '#f0fdf4' : '#f0f9ff';
 
         div.ondragstart = (e) => {
             e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, source: 'pool' }));

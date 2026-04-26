@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LPAB Elective Planner</title>
+    <link rel="stylesheet" href="./css/planner.css">
     <style>
         body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; background-color: #f4f4f5; margin: 0; }
         #subject-pool { width: 350px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
@@ -23,7 +24,7 @@
         .semester-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .semester-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; min-height: 80px; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; background-color: #fafafa; transition: background-color 0.2s; }
 
-        .slot { border-width: 2px; min-height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
+        .slot { border-width: 2px; border-style: solid; min-height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; cursor: grab; }
 
         #feedback-panel { padding: 15px; border-radius: 8px; display: none; margin-bottom: 10px; }
         .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }

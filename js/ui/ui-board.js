@@ -63,18 +63,13 @@ export function renderPlannerBoard() {
     dynamicContainer.innerHTML = '';
     completedSection.innerHTML = '';
 
-    completedSection.style.minHeight = '100px';
-    completedSection.style.border = '2px dashed #cbd5e1';
-    completedSection.style.borderRadius = '8px';
-    completedSection.style.padding = '10px';
-
-    completedSection.ondragover = (e) => { e.preventDefault(); e.currentTarget.style.backgroundColor = '#e2e8f0'; };
-    completedSection.ondragleave = (e) => { e.currentTarget.style.backgroundColor = ''; };
-    completedSection.ondrop = (e) => handleDrop(e, 'completed');
+    completedSection.ondragover = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+    completedSection.ondragleave = (e) => { e.currentTarget.classList.remove('drag-over'); };
+    completedSection.ondrop = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, 'completed'); };
 
     const completedSubjects = PlannerState.getSemester('completed');
     if (completedSubjects.length === 0) {
-        completedSection.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; padding: 20px;">Drag completed subjects here</div>`;
+        completedSection.innerHTML = `<div class="slots__empty">Drag completed subjects here</div>`;
     } else {
         completedSubjects.forEach(subject => completedSection.appendChild(createSubjectSlot(subject, 'completed', null)));
     }
@@ -114,12 +109,12 @@ export function renderPlannerBoard() {
         `;
         const slotsContainer = card.querySelector('.semester-slots');
 
-        slotsContainer.ondragover = (e) => { e.preventDefault(); e.currentTarget.style.backgroundColor = '#e2e8f0'; };
-        slotsContainer.ondragleave = (e) => { e.currentTarget.style.backgroundColor = ''; };
-        slotsContainer.ondrop = (e) => handleDrop(e, semesterId);
+        slotsContainer.ondragover = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+        slotsContainer.ondragleave = (e) => { e.currentTarget.classList.remove('drag-over'); };
+        slotsContainer.ondrop = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, semesterId); };
 
         if (plannedSubjects.length === 0) {
-            slotsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; padding: 20px;">Drag subjects here (Max 4)</div>`;
+            slotsContainer.innerHTML = `<div class="slots__empty">Drag subjects here (Max 4)</div>`;
         } else {
             plannedSubjects.forEach(subject => {
                 const subjectWarnings = clashData[subject.id];
@@ -135,28 +130,18 @@ export function renderPlannerBoard() {
 
 function createSubjectSlot(subject, semesterId, subjectWarnings) {
     const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.style.borderStyle = 'solid';
-
     const isClashing = subjectWarnings && subjectWarnings.length > 0;
     const sType = subject.type.toLowerCase();
 
-    let bColor = sType === 'compulsory' ? '#4ade80' : '#38bdf8';
-    let bgColor = sType === 'compulsory' ? '#f0fdf4' : '#f0f9ff';
-    let txtColor = '#1e293b';
-
+    // Base classes
+    slot.className = 'slot';
     if (isClashing) {
-        bColor = '#ef4444';
-        bgColor = '#fef2f2';
-        txtColor = '#7f1d1d';
+        slot.classList.add('slot--clash');
+    } else {
+        slot.classList.add(sType === 'compulsory' ? 'slot--compulsory' : 'slot--elective');
     }
 
-    slot.style.borderColor = bColor;
-    slot.style.backgroundColor = bgColor;
-    slot.style.color = txtColor;
-
     slot.draggable = true;
-    slot.style.cursor = 'grab';
     slot.ondragstart = (e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, source: semesterId }));
         e.dataTransfer.effectAllowed = 'move';
@@ -168,35 +153,35 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
     }
 
     const completeBtnHtml = semesterId !== 'completed'
-        ? `<span class="action-btn" style="font-size: 0.8em; cursor:pointer; color: #16a34a; margin-right: 15px; font-weight: bold;" onclick="markCompleted('${semesterId}', '${subject.id}')">✓ Done</span>`
+        ? `<button class="action-btn slot__btn--done" onclick="markCompleted('${semesterId}', '${subject.id}')">✓ Done</button>`
         : '';
 
     const lectureDisplay = semesterId !== 'completed'
-        ? `<div style="font-size: 0.85em; font-weight: 600; color: #475569; margin-top: 6px;">📅 ${subject.lecture}</div>`
+        ? `<div class="slot__lecture">📅 ${subject.lecture}</div>`
         : '';
 
     const examDisplayData = getExamText(subject, semesterId);
     const examDisplay = semesterId !== 'completed'
-        ? `<div style="font-size: 0.8em; color: #64748b; margin-top: 2px;">${examDisplayData}</div>`
+        ? `<div class="slot__exam">${examDisplayData}</div>`
         : '';
 
     let clashWarningHtml = '';
     if (isClashing) {
         subjectWarnings.forEach(warning => {
-            clashWarningHtml += `<div style="font-size: 0.75em; color: #dc2626; font-weight: bold; margin-top: 4px;">⚠️ ${warning}</div>`;
+            clashWarningHtml += `<div class="slot__clash-warning">⚠️ ${warning}</div>`;
         });
     }
 
     slot.innerHTML = `
         <div style="text-align: center; width: 100%;">
             <strong>${subject.name}</strong><br>
-            <span style="font-size: 0.7em; text-transform: uppercase;">${subject.type}</span>
+            <span class="slot__type">${subject.type}</span>
             ${lectureDisplay}
             ${examDisplay}
             ${clashWarningHtml}
-            <div style="margin-top: 8px;">
+            <div class="slot__actions">
                 ${completeBtnHtml}
-                <span class="action-btn" style="font-size: 0.8em; cursor:pointer; color: red;" onclick="removeSubject('${semesterId}', '${subject.id}')">✕ Remove</span>
+                <button class="action-btn slot__btn--remove" onclick="removeSubject('${semesterId}', '${subject.id}')">✕ Remove</button>
             </div>
         </div>
     `;
@@ -205,7 +190,6 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
 
 function handleDrop(event, targetSemesterId) {
     event.preventDefault();
-    event.currentTarget.style.backgroundColor = '';
 
     try {
         const data = JSON.parse(event.dataTransfer.getData('text/plain'));
