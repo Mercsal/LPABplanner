@@ -1125,6 +1125,7 @@ body {
     .action-btn, #completed-section, #theme-toggle,
     .ob-overlay, .ob-modal-backdrop,
     .stats-badge, .stats-bar, .stats-history { display: none !important; }
+    #onboarding-overlay { display: none !important; }
     #planner-board { gap: 10px; width: 100%; }
     #progress-tracker {
         background: transparent; color: black; padding: 0;
@@ -1138,4 +1139,136 @@ body {
     }
     .semester-slots { border: none; background: transparent; padding: 0; gap: 15px; }
     .slot { border: 1px solid #cbd5e1 !important; background: transparent !important; color: black !important; }
+}
+
+/* ─── Onboarding overlay ──────────────────────────────────────── */
+/* Full-screen backdrop — sits above everything, blocks interaction  */
+#onboarding-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* Modal card — styled like .semester-card for visual consistency */
+.onboarding-modal {
+    background: var(--color-surface);
+    border-radius: 10px;
+    box-shadow: var(--shadow-card);
+    padding: 36px 40px 28px;
+    max-width: 760px;
+    width: 100%;
+    position: relative;
+    color: var(--color-text);
+}
+
+.onboarding-modal__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 24px 0;
+    color: var(--color-text);
+    line-height: 1.25;
+    padding-right: 32px; /* clearance for close button */
+}
+
+/* Close (×) button — top-right corner */
+.onboarding-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-text-faint);
+    transition: color 0.15s;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+.onboarding-close:hover { color: var(--color-text); }
+
+/* Tile grid — three equal-width tiles per step, matching .slot proportions */
+.onboarding-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+/* Individual tile — same border + bg pattern as .slot cards */
+.onboarding-tile {
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface-offset);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow-slot);
+}
+
+.onboarding-tile__heading {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    display: block;
+    line-height: 1.2;
+}
+
+.onboarding-tile__body {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: none;
+}
+
+/* Footer row: step dots (left) + Back / Next buttons (right) */
+.onboarding-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.onboarding-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.onboarding-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-border);
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.onboarding-dot--active {
+    background: var(--color-export-btn);
+}
+
+.onboarding-footer__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.onboarding-btn {
+    min-width: 90px;
+}
+
+/* Responsive: stack tiles on narrow viewports */
+@media (max-width: 600px) {
+    .onboarding-tiles {
+        grid-template-columns: 1fr;
+    }
+    .onboarding-modal {
+        padding: 24px 20px 20px;
+    }
 }
