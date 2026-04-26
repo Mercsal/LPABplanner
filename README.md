@@ -4,6 +4,8 @@ A lightweight, interactive drag-and-drop progression planner built specifically 
 
 This tool helps students map out their 20-subject progression (17 compulsory, 3 electives), tracks progress toward graduation, and automatically detects lecture and exam timetabling clashes.
 
+unashamedly vibe coded, because i sure as hell couldnt do it otherwise.
+
 ---
 
 ## Features
