@@ -3,6 +3,7 @@ import { subjects } from '../../subjects.js';
 import { PlannerState } from '../../planner.js';
 import { handleAddSubject } from './ui-board.js';
 import { createDifficultyBadge } from './ui-stats.js';
+import { initTouchDnD } from './ui-touch-dnd.js';
 
 const subjectListEl = document.getElementById('subject-list');
 
@@ -39,6 +40,9 @@ export function renderSubjectPool() {
         });
         subjectListEl.appendChild(details);
     }
+
+    // Re-attach touch DnD handlers after pool render
+    initTouchDnD();
 }
 
 function createPoolItem(subject, isHidden = false) {
@@ -50,6 +54,9 @@ function createPoolItem(subject, isHidden = false) {
 
     div.className = `subject-item ${groupClass}${isHidden ? ' pool-item--hidden' : ''}`;
     div.draggable = !isHidden;
+    // Data attributes for touch DnD
+    div.dataset.subjectId = subject.id;
+    div.dataset.sourceId  = 'pool';
 
     if (!isHidden) {
         div.title = 'Drag to a semester, or Double-Click to mark as Completed';

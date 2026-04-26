@@ -218,12 +218,16 @@ body {
 /* ─── Subject pool sidebar ────────────────────────────────────── */
 #subject-pool {
     width: 350px;
+    flex-shrink: 0;
     background: var(--color-surface);
     padding: 15px;
     border-radius: 8px;
     box-shadow: var(--shadow-card);
     max-height: 90vh;
     overflow-y: auto;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
 }
 
 #subject-pool h2 {
@@ -245,6 +249,12 @@ body {
 
 .subject-item:active { transform: scale(0.98); }
 
+/* Touch-dragging state */
+.subject-item.touch-dragging {
+    opacity: 0.4;
+    transform: scale(0.97);
+}
+
 .subject-item__header {
     display: flex;
     align-items: center;
@@ -258,12 +268,27 @@ body {
     margin-top: 4px;
 }
 
+/* Drag hint shown in pool header */
+.pool-drag-hint {
+    font-size: 0.78em;
+    color: var(--color-text-faint);
+    margin: 0 0 10px;
+    text-align: center;
+}
+.pool-drag-hint--touch  { display: none; }
+.pool-drag-hint--mouse  { display: block; }
+@media (hover: none) and (pointer: coarse) {
+    .pool-drag-hint--touch { display: block; }
+    .pool-drag-hint--mouse { display: none; }
+}
+
 /* ─── Planner board ───────────────────────────────────────────── */
 #planner-board {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 0;
 }
 
 /* ─── Progress tracker ────────────────────────────────────────── */
@@ -273,6 +298,15 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: var(--shadow-tracker);
+}
+
+/* Toolbar row — wraps on narrow screens */
+.progress-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .progress-row { margin-top: 10px; }
@@ -473,11 +507,15 @@ body {
     cursor: pointer;
     font-weight: bold;
     transition: opacity 0.2s;
+    /* ensure tappable on mobile */
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .toolbar-btn:hover { opacity: 0.8; }
 .btn-export { background-color: var(--color-export-btn); color: #fff; }
 .btn-print  { background-color: var(--color-print-btn);  color: #fff; }
+.btn-reset  { background-color: var(--color-clash-border); color: #fff; }
 
 /* ─── Dark mode toggle ────────────────────────────────────────── */
 #theme-toggle {
@@ -488,6 +526,8 @@ body {
     padding: 8px 12px;
     cursor: pointer;
     font-size: 1em;
+    min-height: 44px;
+    min-width: 44px;
     transition: background 0.2s, color 0.2s;
 }
 
@@ -657,6 +697,7 @@ body {
     max-width: 540px;
     /* cap height to viewport — inner scroll region handles overflow */
     max-height: calc(100dvh - 48px);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 28px;
@@ -737,7 +778,6 @@ body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    /* slight inset shadow to signal scrollability */
     border-radius: 4px;
 }
 
@@ -760,6 +800,7 @@ body {
     cursor: pointer;
     border: 2px solid transparent;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
+    min-height: 44px;
 }
 
 .ob-btn--primary {
@@ -830,14 +871,15 @@ body {
     cursor: pointer;
     border-bottom: 1px solid var(--color-border);
     transition: background 0.1s;
+    min-height: 44px;
 }
 
 .ob-check-row:last-child { border-bottom: none; }
 .ob-check-row:hover { background: var(--color-surface-offset); }
 
 .ob-check-row input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     accent-color: var(--color-compulsory);
     cursor: pointer;
@@ -1134,6 +1176,24 @@ body {
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* ─── Touch drag ghost ────────────────────────────────────────── */
+#touch-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.85;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    transform: translate(-50%, -50%) scale(1.04);
+    transition: transform 0.05s ease;
+    max-width: 220px;
+    background: var(--color-surface);
+    padding: 10px 12px;
+    font-size: 0.9em;
+    border: 2px solid var(--color-compulsory);
+    color: var(--color-text);
+}
+
 /* ─── Print styles ────────────────────────────────────────────── */
 @media print {
     body { background: white; padding: 0; display: block; }
@@ -1158,7 +1218,6 @@ body {
 }
 
 /* ─── Onboarding overlay ──────────────────────────────────────── */
-/* Full-screen backdrop — sits above everything, blocks interaction  */
 #onboarding-overlay {
     position: fixed;
     inset: 0;
@@ -1170,7 +1229,6 @@ body {
     padding: 20px;
 }
 
-/* Modal card — styled like .semester-card for visual consistency */
 .onboarding-modal {
     background: var(--color-surface);
     border-radius: 10px;
@@ -1188,10 +1246,9 @@ body {
     margin: 0 0 24px 0;
     color: var(--color-text);
     line-height: 1.25;
-    padding-right: 32px; /* clearance for close button */
+    padding-right: 32px;
 }
 
-/* Close (×) button — top-right corner */
 .onboarding-close {
     position: absolute;
     top: 16px;
@@ -1205,10 +1262,11 @@ body {
     transition: color 0.15s;
     padding: 4px 6px;
     border-radius: 4px;
+    min-height: 44px;
+    min-width: 44px;
 }
 .onboarding-close:hover { color: var(--color-text); }
 
-/* Tile grid — three equal-width tiles per step, matching .slot proportions */
 .onboarding-tiles {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1216,7 +1274,6 @@ body {
     margin-bottom: 28px;
 }
 
-/* Individual tile — same border + bg pattern as .slot cards */
 .onboarding-tile {
     border: 2px solid var(--color-border);
     border-radius: 6px;
@@ -1244,7 +1301,6 @@ body {
     max-width: none;
 }
 
-/* Footer row: step dots (left) + Back / Next buttons (right) */
 .onboarding-footer {
     display: flex;
     align-items: center;
@@ -1279,12 +1335,71 @@ body {
     min-width: 90px;
 }
 
-/* Responsive: stack tiles on narrow viewports */
-@media (max-width: 600px) {
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* Stack sidebar below board */
+    body {
+        flex-direction: column;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    #subject-pool {
+        width: 100%;
+        max-height: 50vh;
+        position: static;
+        order: 2; /* pool appears below planner on mobile */
+    }
+
+    #planner-board {
+        order: 1;
+    }
+
+    /* Semester grid: 2 columns on mobile */
+    .semester-slots {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Toolbar buttons wrap */
+    #progress-tracker > div:first-child {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* Wizard card: tighter padding */
+    .ob-card {
+        padding: 24px 20px 20px;
+        gap: 20px;
+    }
+
+    /* Title slightly smaller */
+    .ob-title {
+        font-size: 1.3rem;
+    }
+
+    /* Allow meta text to wrap on narrow rows */
+    .ob-check-meta {
+        white-space: normal;
+        text-align: right;
+    }
+
+    /* Pathway preview: stack semester label above chips */
+    .ob-pathway-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    /* Onboarding tour tiles: single column */
     .onboarding-tiles {
         grid-template-columns: 1fr;
     }
     .onboarding-modal {
-        padding: 24px 20px 20px;
+        padding: 24px 16px 20px;
     }
+
+    /* Print btn hidden on mobile (printing from phone is rare) */
+    .btn-print { display: none; }
 }

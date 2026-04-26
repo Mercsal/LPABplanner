@@ -7,6 +7,7 @@ import { renderSubjectPool } from './ui-pool.js';
 import { renderProgress } from './ui-progress.js';
 import { feedbackPanel, errorListEl } from './ui-main.js';
 import { createGradeBar } from './ui-stats.js';
+import { initTouchDnD } from './ui-touch-dnd.js';
 
 export function getExamText(subject, semesterId) {
     if (semesterId === 'completed') return '';
@@ -132,6 +133,8 @@ export function renderPlannerBoard() {
     });
 
     renderProgress();
+    // Re-attach touch DnD handlers after every board render
+    initTouchDnD();
 }
 
 function createSubjectSlot(subject, semesterId, subjectWarnings) {
@@ -144,6 +147,10 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
 
     slot.className = `slot ${isClashing ? 'slot--clash' : groupClass}`;
     slot.draggable = true;
+    // Data attributes for touch DnD
+    slot.dataset.subjectId = subject.id;
+    slot.dataset.sourceId  = semesterId;
+
     slot.ondragstart = (e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, source: semesterId }));
         e.dataTransfer.effectAllowed = 'move';
