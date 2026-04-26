@@ -1,0 +1,420 @@
+/* planner.css — design tokens, layout, component states, dark mode */
+
+/* ─── Light mode tokens (default) ────────────────────────────── */
+:root {
+    --color-bg:               #f4f4f5;
+    --color-surface:          #ffffff;
+    --color-surface-offset:   #fafafa;
+    --color-border:           #cbd5e1;
+    --color-border-dashed:    #cbd5e1;
+
+    --color-text:             #1e293b;
+    --color-text-muted:       #475569;
+    --color-text-faint:       #64748b;
+    --color-text-placeholder: #94a3b8;
+
+    --color-tracker-bg:       #1e293b;
+    --color-tracker-text:     #ffffff;
+    --color-tracker-bar-bg:   #334155;
+
+    --color-compulsory:       #4ade80;
+    --color-compulsory-bg:    #f0fdf4;
+    --color-elective:         #38bdf8;
+    --color-elective-bg:      #f0f9ff;
+
+    --color-clash-border:     #ef4444;
+    --color-clash-bg:         #fef2f2;
+    --color-clash-text:       #7f1d1d;
+    --color-clash-warning:    #dc2626;
+
+    --color-drag-over:        #e2e8f0;
+
+    --color-done-btn:         #16a34a;
+    --color-remove-btn:       #ef4444;
+
+    --color-feedback-bg:      #fee2e2;
+    --color-feedback-text:    #991b1b;
+    --color-feedback-border:  #f87171;
+
+    --color-export-btn:       #38bdf8;
+    --color-print-btn:        #94a3b8;
+    --color-grad-status:      #fbbf24;
+    --color-grad-ready:       #4ade80;
+
+    --color-toggle-bg:        #e2e8f0;
+    --color-toggle-text:      #1e293b;
+
+    --shadow-card:   0 2px 4px rgba(0,0,0,0.10);
+    --shadow-slot:   0 1px 3px rgba(0,0,0,0.10);
+    --shadow-pool:   0 1px 2px rgba(0,0,0,0.05);
+    --shadow-tracker:0 4px 6px rgba(0,0,0,0.10);
+}
+
+/* ─── Dark mode tokens ────────────────────────────────────────── */
+[data-theme="dark"],
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-bg:               #0f172a;
+        --color-surface:          #1e293b;
+        --color-surface-offset:   #1a2744;
+        --color-border:           #334155;
+        --color-border-dashed:    #475569;
+
+        --color-text:             #e2e8f0;
+        --color-text-muted:       #94a3b8;
+        --color-text-faint:       #64748b;
+        --color-text-placeholder: #475569;
+
+        --color-tracker-bg:       #0f172a;
+        --color-tracker-text:     #e2e8f0;
+        --color-tracker-bar-bg:   #1e293b;
+
+        --color-compulsory:       #22c55e;
+        --color-compulsory-bg:    #052e16;
+        --color-elective:         #0ea5e9;
+        --color-elective-bg:      #082f49;
+
+        --color-clash-border:     #f87171;
+        --color-clash-bg:         #2d0a0a;
+        --color-clash-text:       #fca5a5;
+        --color-clash-warning:    #f87171;
+
+        --color-drag-over:        #1e3a5f;
+
+        --color-done-btn:         #4ade80;
+        --color-remove-btn:       #f87171;
+
+        --color-feedback-bg:      #2d0a0a;
+        --color-feedback-text:    #fca5a5;
+        --color-feedback-border:  #f87171;
+
+        --color-export-btn:       #0ea5e9;
+        --color-print-btn:        #475569;
+        --color-grad-status:      #fbbf24;
+        --color-grad-ready:       #4ade80;
+
+        --color-toggle-bg:        #334155;
+        --color-toggle-text:      #e2e8f0;
+
+        --shadow-card:   0 2px 4px rgba(0,0,0,0.4);
+        --shadow-slot:   0 1px 3px rgba(0,0,0,0.4);
+        --shadow-pool:   0 1px 2px rgba(0,0,0,0.3);
+        --shadow-tracker:0 4px 6px rgba(0,0,0,0.4);
+    }
+}
+
+[data-theme="dark"] {
+    --color-bg:               #0f172a;
+    --color-surface:          #1e293b;
+    --color-surface-offset:   #1a2744;
+    --color-border:           #334155;
+    --color-border-dashed:    #475569;
+    --color-text:             #e2e8f0;
+    --color-text-muted:       #94a3b8;
+    --color-text-faint:       #64748b;
+    --color-text-placeholder: #475569;
+    --color-tracker-bg:       #0f172a;
+    --color-tracker-text:     #e2e8f0;
+    --color-tracker-bar-bg:   #1e293b;
+    --color-compulsory:       #22c55e;
+    --color-compulsory-bg:    #052e16;
+    --color-elective:         #0ea5e9;
+    --color-elective-bg:      #082f49;
+    --color-clash-border:     #f87171;
+    --color-clash-bg:         #2d0a0a;
+    --color-clash-text:       #fca5a5;
+    --color-clash-warning:    #f87171;
+    --color-drag-over:        #1e3a5f;
+    --color-done-btn:         #4ade80;
+    --color-remove-btn:       #f87171;
+    --color-feedback-bg:      #2d0a0a;
+    --color-feedback-text:    #fca5a5;
+    --color-feedback-border:  #f87171;
+    --color-export-btn:       #0ea5e9;
+    --color-print-btn:        #475569;
+    --color-grad-status:      #fbbf24;
+    --color-grad-ready:       #4ade80;
+    --color-toggle-bg:        #334155;
+    --color-toggle-text:      #e2e8f0;
+    --shadow-card:   0 2px 4px rgba(0,0,0,0.4);
+    --shadow-slot:   0 1px 3px rgba(0,0,0,0.4);
+    --shadow-pool:   0 1px 2px rgba(0,0,0,0.3);
+    --shadow-tracker:0 4px 6px rgba(0,0,0,0.4);
+}
+
+/* ─── Base layout ─────────────────────────────────────────────── */
+body {
+    font-family: sans-serif;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    margin: 0;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* ─── Subject pool sidebar ────────────────────────────────────── */
+#subject-pool {
+    width: 350px;
+    background: var(--color-surface);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#subject-pool h2 {
+    color: var(--color-text);
+}
+
+.subject-item {
+    border-width: 2px;
+    border-style: solid;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    cursor: grab;
+    box-shadow: var(--shadow-pool);
+    color: var(--color-text);
+    user-select: none;
+    transition: transform 0.1s;
+}
+
+.subject-item:active { transform: scale(0.98); }
+
+.subject-item .subject-meta {
+    font-size: 0.85em;
+    color: var(--color-text-faint);
+    margin-top: 4px;
+}
+
+/* ─── Planner board ───────────────────────────────────────────── */
+#planner-board {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ─── Progress tracker ────────────────────────────────────────── */
+#progress-tracker {
+    background: var(--color-tracker-bg);
+    color: var(--color-tracker-text);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-tracker);
+}
+
+.progress-row { margin-top: 10px; }
+
+.progress-bar-bg {
+    width: 100%;
+    background: var(--color-tracker-bar-bg);
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--color-compulsory);
+    transition: width 0.3s ease;
+}
+
+.elective-fill { background: var(--color-elective); }
+
+#grad-status {
+    margin-top: 15px;
+    font-weight: bold;
+    color: var(--color-grad-status);
+}
+
+/* ─── Semester cards ──────────────────────────────────────────── */
+.semester-card {
+    background: var(--color-surface);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    color: var(--color-text);
+}
+
+.semester-slots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+    min-height: 80px;
+    border: 2px dashed var(--color-border-dashed);
+    border-radius: 8px;
+    padding: 10px;
+    background-color: var(--color-surface-offset);
+    transition: background-color 0.2s;
+}
+
+/* ─── Subject slots ───────────────────────────────────────────── */
+.slot {
+    border-width: 2px;
+    border-style: solid;
+    min-height: 80px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-shadow: var(--shadow-slot);
+    user-select: none;
+    cursor: grab;
+}
+
+.slot--compulsory {
+    border-color: var(--color-compulsory);
+    background-color: var(--color-compulsory-bg);
+    color: var(--color-text);
+}
+
+.slot--elective {
+    border-color: var(--color-elective);
+    background-color: var(--color-elective-bg);
+    color: var(--color-text);
+}
+
+.pool-item--compulsory {
+    border-color: var(--color-compulsory);
+    background-color: var(--color-compulsory-bg);
+}
+
+.pool-item--elective {
+    border-color: var(--color-elective);
+    background-color: var(--color-elective-bg);
+}
+
+/* ─── Clash state ─────────────────────────────────────────────── */
+.slot--clash {
+    border-color: var(--color-clash-border);
+    background-color: var(--color-clash-bg);
+    color: var(--color-clash-text);
+}
+
+/* ─── Drag-over highlight ─────────────────────────────────────── */
+.drag-over {
+    background-color: var(--color-drag-over) !important;
+}
+
+/* ─── Slot inner text elements ────────────────────────────────── */
+.slot__type {
+    font-size: 0.7em;
+    text-transform: uppercase;
+}
+
+.slot__lecture {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-top: 6px;
+}
+
+.slot__exam {
+    font-size: 0.8em;
+    color: var(--color-text-faint);
+    margin-top: 2px;
+}
+
+.slot__clash-warning {
+    font-size: 0.75em;
+    color: var(--color-clash-warning);
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.slot__actions { margin-top: 8px; }
+
+.slot__btn--done {
+    font-size: 0.8em;
+    cursor: pointer;
+    color: var(--color-done-btn);
+    margin-right: 15px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.slot__btn--remove {
+    font-size: 0.8em;
+    cursor: pointer;
+    color: var(--color-remove-btn);
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* ─── Empty state placeholder ─────────────────────────────────── */
+.slots__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-text-placeholder);
+    padding: 20px;
+}
+
+/* ─── Feedback / error panel ──────────────────────────────────── */
+#feedback-panel {
+    padding: 15px;
+    border-radius: 8px;
+    display: none;
+    margin-bottom: 10px;
+}
+
+.error {
+    background-color: var(--color-feedback-bg);
+    color: var(--color-feedback-text);
+    border: 1px solid var(--color-feedback-border);
+}
+
+/* ─── Toolbar buttons ─────────────────────────────────────────── */
+.toolbar-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.toolbar-btn:hover { opacity: 0.8; }
+.btn-export { background-color: var(--color-export-btn); color: #fff; }
+.btn-print  { background-color: var(--color-print-btn);  color: #fff; }
+
+/* ─── Dark mode toggle ────────────────────────────────────────── */
+#theme-toggle {
+    background: var(--color-toggle-bg);
+    color: var(--color-toggle-text);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* ─── Print styles ────────────────────────────────────────────── */
+@media print {
+    body { background: white; padding: 0; display: block; }
+    #subject-pool, #feedback-panel, .toolbar-btn, .progress-bar-bg,
+    .action-btn, #completed-section, #theme-toggle { display: none !important; }
+    #planner-board { gap: 10px; width: 100%; }
+    #progress-tracker {
+        background: transparent; color: black; padding: 0;
+        box-shadow: none; border-bottom: 2px solid #000;
+        border-radius: 0; margin-bottom: 20px;
+    }
+    #grad-status { color: black !important; }
+    .semester-card {
+        box-shadow: none; padding: 10px 0; border-radius: 0;
+        border-bottom: 1px solid #eee; page-break-inside: avoid;
+    }
+    .semester-slots { border: none; background: transparent; padding: 0; gap: 15px; }
+    .slot { border: 1px solid #cbd5e1 !important; background: transparent !important; color: black !important; }
+}
