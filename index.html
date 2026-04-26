@@ -8,6 +8,9 @@
 </head>
 <body>
 
+    <!-- Onboarding overlay — shown on first visit, hidden once done -->
+    <div id="onboarding-overlay"></div>
+
     <aside id="subject-pool">
         <h2>Available Subjects</h2>
         <div id="subject-list"></div>
@@ -19,7 +22,8 @@
                 <h2 style="margin: 0 0 10px 0;">Diploma Progress</h2>
                 <div style="display: flex; gap: 10px;">
                     <button id="theme-toggle" aria-label="Switch to dark mode">🌙</button>
-                    <button id="export-btn" class="toolbar-btn btn-export">Copy to Text</button>
+                    <button id="reset-btn"    class="toolbar-btn btn-reset">Reset Plan</button>
+                    <button id="export-btn"   class="toolbar-btn btn-export">Copy to Text</button>
                     <button onclick="window.print()" class="toolbar-btn btn-print">Print Plan</button>
                 </div>
             </div>
@@ -50,17 +54,13 @@
 
     <script type="module" src="./js/ui/ui-main.js"></script>
     <script>
-        // Dark mode toggle — runs before modules load to avoid flash
         (function () {
             const html   = document.documentElement;
             const toggle = document.getElementById('theme-toggle');
-
-            // Default to system preference
             let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             html.setAttribute('data-theme', theme);
             toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
             toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-
             toggle.addEventListener('click', () => {
                 theme = theme === 'dark' ? 'light' : 'dark';
                 html.setAttribute('data-theme', theme);
