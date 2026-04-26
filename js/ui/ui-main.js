@@ -1,11 +1,10 @@
 // ui-main.js — entry point, wires all UI modules together
 import { PlannerState } from '../../planner.js';
 import { isOnboardingDone } from '../state/storage.js';
-import { showOnboardingIfNeeded } from './ui-onboarding.js';
+import { showOnboardingIfNeeded, showOnboarding } from './ui-onboarding.js';
 import { renderSubjectPool } from './ui-pool.js';
 import { renderPlannerBoard } from './ui-board.js';
 import { setupExportButton } from './ui-toolbar.js';
-import { showOnboardingIfNeeded, showOnboarding } from './ui-onboarding.js';
 
 export const feedbackPanel = document.getElementById('feedback-panel');
 export const errorListEl   = document.getElementById('error-list');
