@@ -695,12 +695,13 @@ body {
     padding: 48px 40px 40px;
     width: 100%;
     max-width: 540px;
-    /* cap height to viewport — inner scroll region handles overflow */
+    /* cap height to viewport so content never pushes offscreen */
     max-height: calc(100dvh - 48px);
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 28px;
+    /* card itself does NOT scroll — inner regions handle overflow */
+    overflow: hidden;
 }
 
 .ob-card--wide {
@@ -781,6 +782,9 @@ body {
     border-radius: 4px;
 }
 
+/* ── Action buttons — sticky to the bottom of the card ──────── */
+/* Pinned so Back/Next/Confirm remain visible while scrolling      */
+/* through a long subject list on paths B & C.                     */
 .ob-actions {
     display: flex;
     gap: 12px;
@@ -790,6 +794,11 @@ body {
     flex-shrink: 0;
     padding-top: 12px;
     border-top: 1px solid var(--color-border);
+    /* keep buttons visible at all times */
+    position: sticky;
+    bottom: 0;
+    background: var(--color-surface);
+    margin-top: auto;
 }
 
 .ob-btn {
