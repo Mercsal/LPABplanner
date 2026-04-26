@@ -19,7 +19,6 @@ function startApp() {
     renderPlannerBoard();
     renderSubjectPool();
     setupExportButton();
-    showOnboardingIfNeeded();
 
     const helpBtn = document.getElementById('help-btn');
     if (helpBtn) helpBtn.onclick = () => showOnboarding();
