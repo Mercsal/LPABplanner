@@ -655,6 +655,9 @@ body {
     padding: 48px 40px 40px;
     width: 100%;
     max-width: 540px;
+    /* ── fix: cap height to viewport so content never scrolls offscreen ── */
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 28px;
@@ -734,6 +737,12 @@ body {
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
+    /* stick to bottom of card when card is height-constrained */
+    position: sticky;
+    bottom: 0;
+    background: var(--color-surface);
+    padding-top: 12px;
+    margin-top: auto;
 }
 
 .ob-btn {
