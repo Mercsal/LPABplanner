@@ -655,9 +655,8 @@ body {
     padding: 48px 40px 40px;
     width: 100%;
     max-width: 540px;
-    /* ── fix: cap height to viewport so content never scrolls offscreen ── */
+    /* cap height to viewport — inner scroll region handles overflow */
     max-height: calc(100dvh - 48px);
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 28px;
@@ -671,6 +670,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .ob-title {
@@ -731,18 +731,25 @@ body {
     color: var(--color-text-muted);
 }
 
+/* ── Scrollable subject-group region (paths B & C) ───────────── */
+/* Takes all remaining height; header and actions stay put.        */
+.ob-groups-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    /* slight inset shadow to signal scrollability */
+    border-radius: 4px;
+}
+
 .ob-actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    /* stick to bottom of card when card is height-constrained */
-    position: sticky;
-    bottom: 0;
-    background: var(--color-surface);
+    flex-shrink: 0;
     padding-top: 12px;
-    margin-top: auto;
+    border-top: 1px solid var(--color-border);
 }
 
 .ob-btn {
