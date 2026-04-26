@@ -86,9 +86,11 @@ export function renderPlannerBoard() {
         year++;
     }
 
+    // Use getPlan() instead of the removed .plan property
+    const plan = PlannerState.getPlan();
     let lastPopulatedIndex = -1;
     allTerms.forEach((term, index) => {
-        if (PlannerState.plan[term] && PlannerState.plan[term].length > 0) {
+        if (plan[term] && plan[term].length > 0) {
             lastPopulatedIndex = index;
         }
     });
@@ -133,7 +135,6 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
     const isClashing = subjectWarnings && subjectWarnings.length > 0;
     const sType = subject.type.toLowerCase();
 
-    // Base classes
     slot.className = 'slot';
     if (isClashing) {
         slot.classList.add('slot--clash');

@@ -23,6 +23,15 @@ export const PlannerState = {
     // ----------------------------------------------------------------
 
     /**
+     * Return the full plan object (read-only reference).
+     * Use getSemester() for mutations — don't mutate this directly.
+     * @returns {object}
+     */
+    getPlan() {
+        return _plan;
+    },
+
+    /**
      * Return the subject array for a semester, creating it if absent.
      * @param {string} id — e.g. 'winter2026' or 'completed'
      * @returns {Array}
