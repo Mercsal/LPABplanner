@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LPAB Elective Planner</title>
     <style>
-        /* Basic Structural CSS */
-        body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; background-color: #f4f4f5; }
-        
-        .subject-item { border-width: 2px; border-style: solid; padding: 10px; margin-bottom: 10px; border-radius: 6px; cursor: grab; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #1e293b; user-select: none; transition: transform 0.1s;}
+        body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; background-color: #f4f4f5; margin: 0; }
+        #subject-pool { width: 350px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
+
+        .subject-item { border-width: 2px; border-style: solid; padding: 10px; margin-bottom: 10px; border-radius: 6px; cursor: grab; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #1e293b; user-select: none; transition: transform 0.1s; }
         .subject-item:active { transform: scale(0.98); }
-        
+
         #planner-board { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
-        
+
         #progress-tracker { background: #1e293b; color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .progress-row { margin-top: 10px; }
         .progress-bar-bg { width: 100%; background: #334155; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 5px; }
@@ -21,12 +21,28 @@
         #grad-status { margin-top: 15px; font-weight: bold; color: #fbbf24; }
 
         .semester-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .semester-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; min-height: 80px; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; background-color: #fafafa; transition: background-color 0.2s;}
-        
-        .slot { border-width: 2px; min-height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none;}
-        
+        .semester-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; min-height: 80px; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; background-color: #fafafa; transition: background-color 0.2s; }
+
+        .slot { border-width: 2px; min-height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
+
         #feedback-panel { padding: 15px; border-radius: 8px; display: none; margin-bottom: 10px; }
         .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+
+        .toolbar-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+        .toolbar-btn:hover { opacity: 0.8; }
+        .btn-export { background-color: #38bdf8; color: #fff; }
+        .btn-print { background-color: #94a3b8; color: #fff; }
+
+        @media print {
+            body { background: white; padding: 0; display: block; }
+            #subject-pool, #feedback-panel, .toolbar-btn, .progress-bar-bg, .action-btn, #completed-section { display: none !important; }
+            #planner-board { gap: 10px; width: 100%; }
+            #progress-tracker { background: transparent; color: black; padding: 0; box-shadow: none; border-bottom: 2px solid #000; border-radius: 0; margin-bottom: 20px; }
+            #grad-status { color: black !important; }
+            .semester-card { box-shadow: none; padding: 10px 0; border-radius: 0; border-bottom: 1px solid #eee; page-break-inside: avoid; }
+            .semester-slots { border: none; background: transparent; padding: 0; gap: 15px; }
+            .slot { border: 1px solid #cbd5e1 !important; background: transparent !important; color: black !important; }
+        }
     </style>
 </head>
 <body>
@@ -39,13 +55,12 @@
     <main id="planner-board">
         <section id="progress-tracker">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <h2 style="margin:0 0 10px 0;">Diploma Progress</h2>
+                <h2 style="margin: 0 0 10px 0;">Diploma Progress</h2>
                 <div style="display: flex; gap: 10px;">
                     <button id="export-btn" class="toolbar-btn btn-export">Copy to Text</button>
                     <button onclick="window.print()" class="toolbar-btn btn-print">Print Plan</button>
                 </div>
             </div>
-            
             <div class="progress-row">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Compulsory Subjects</span><span id="compulsory-text">0 / 17</span>
