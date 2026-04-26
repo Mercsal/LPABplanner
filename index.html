@@ -8,8 +8,6 @@
 </head>
 <body>
 
-    <!-- Onboarding overlay — shown on first visit, hidden once done -->
-    <div id="onboarding-overlay"></div>
     <!-- ─── Onboarding overlay ─────────────────────────────────────────── -->
     <div id="onboarding-overlay" role="dialog" aria-modal="true" aria-labelledby="onboarding-title" style="display:none;">
         <div class="onboarding-modal">
@@ -46,12 +44,10 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <h2 style="margin: 0 0 10px 0;">Diploma Progress</h2>
                 <div style="display: flex; gap: 10px;">
-                    <button id="theme-toggle" aria-label="Switch to dark mode">🌙</button>
+                    <button id="theme-toggle" aria-label="Switch to dark mode">&#9790;</button>
                     <button id="reset-btn"    class="toolbar-btn btn-reset">Reset Plan</button>
                     <button id="export-btn"   class="toolbar-btn btn-export">Copy to Text</button>
-                    <button id="theme-toggle" aria-label="Switch to dark mode">&#9790;</button>
-                    <button id="help-btn" class="toolbar-btn btn-print">Help / Tour</button>
-                    <button id="export-btn" class="toolbar-btn btn-export">Copy to Text</button>
+                    <button id="help-btn"     class="toolbar-btn btn-print">Help / Tour</button>
                     <button onclick="window.print()" class="toolbar-btn btn-print">Print Plan</button>
                 </div>
             </div>
