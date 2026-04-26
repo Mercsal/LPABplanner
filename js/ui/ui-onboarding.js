@@ -173,7 +173,9 @@ function renderCompletedPick(overlay, onComplete) {
                 <h2 class="ob-title">Which subjects have you completed?</h2>
                 <p class="ob-subtitle">These will be moved to your Completed section. Tick all that apply.</p>
             </div>
-            ${renderGroupedCheckboxes('ob-completed', false)}
+            <div class="ob-groups-scroll">
+                ${renderGroupedCheckboxes('ob-completed', false)}
+            </div>
             <div class="ob-actions">
                 <button class="ob-btn ob-btn--secondary" id="ob-back">Back</button>
                 <button class="ob-btn ob-btn--primary"  id="ob-next">Next</button>
@@ -236,8 +238,10 @@ function renderSubjectPick(overlay, onComplete) {
                     they will be hidden from your pool but can be restored at any time.
                 </p>
             </div>
-            ${renderGroupedCheckboxes('ob-doing', true)}
-            <div class="ob-hidden-preview" id="ob-hidden-preview" aria-live="polite"></div>
+            <div class="ob-groups-scroll">
+                ${renderGroupedCheckboxes('ob-doing', true)}
+                <div class="ob-hidden-preview" id="ob-hidden-preview" aria-live="polite"></div>
+            </div>
             <div class="ob-actions">
                 <button class="ob-btn ob-btn--secondary" id="ob-back">Back</button>
                 <button class="ob-btn ob-btn--primary"  id="ob-next">Next</button>
