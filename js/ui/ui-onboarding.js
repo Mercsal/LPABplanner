@@ -59,16 +59,22 @@ const STEPS = [
     }
 ];
 
-export function showOnboardingIfNeeded() {
-    if (_hasShownOnboarding) return;
-    showOnboarding();
+export function showOnboardingIfNeeded(onComplete) {
+    if (_hasShownOnboarding) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+    }
+    showOnboarding(onComplete);
 }
 
-export function showOnboarding() {
+export function showOnboarding(onComplete) {
     _hasShownOnboarding = true;
 
     const overlay = document.getElementById('onboarding-overlay');
-    if (!overlay) return;
+    if (!overlay) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+    }
 
     let currentStep = 0;
     renderStep(currentStep);
@@ -126,6 +132,7 @@ export function showOnboarding() {
     function closeOnboarding() {
         overlay.style.display = 'none';
         document.removeEventListener('keydown', handleEscape);
+        if (typeof onComplete === 'function') onComplete();
     }
 
     function handleEscape(e) {
