@@ -56,6 +56,16 @@ export const PlannerState = {
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
+    /**
+     * Add a subject to a semester.
+     *
+     * Returns:
+     *   { success: false, errors: string[] }  — blocked (term mismatch, full semester, duplicate)
+     *   { success: true }                     — added, no issues
+     *   { success: true, warnings: string[] } — added, but has advisory warnings (e.g. core out-of-order)
+     *
+     * Warnings do NOT block the add. The UI should display them as amber notices.
+     */
     addSubject(semesterId, subject) {
         const alreadyAdded = this.getProgress().totalSubjectsList.find(s => s.id === subject.id);
         if (alreadyAdded) {
@@ -71,6 +81,13 @@ export const PlannerState = {
 
         target.push(subject);
         savePlan(_plan);
+
+        // Core sequence warning — does not block, returned alongside success
+        const coreWarning = Engine.checkCoreOrder(subject.id, _plan);
+        if (coreWarning) {
+            return { success: true, warnings: [coreWarning] };
+        }
+
         return { success: true };
     },
 
@@ -91,7 +108,10 @@ export const PlannerState = {
 
     // ── Reset ─────────────────────────────────────────────────────────────────
 
-    /** Clear all semester placements; keep hidden subjects. Returns pool to full. */
+    /**
+     * Clear all semester placements and completed subjects.
+     * Hidden subject preferences are preserved.
+     */
     resetPlanOnly() {
         _plan = { completed: [] };
         clearPlanOnly();
