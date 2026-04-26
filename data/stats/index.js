@@ -22,8 +22,8 @@ export { summer2026Stats as summer2026 } from './summer2026.js';
 // Uncomment as new semesters are added:
 // export { winter2026Stats as winter2026 } from './winter2026.js';
 // export { summer2025Stats as summer2025 } from './summer2025.js';
-// export { winter2025Stats as winter2025 } from './winter2025.js';
 
+export { winter2025Stats as winter2025 } from './winter2025.js';
 export { winter2024Stats as winter2024 } from './winter2024.js';
 export { summer2024Stats as summer2024 } from './summer2024.js';
 export { winter2023Stats as winter2023 } from './winter2023.js';

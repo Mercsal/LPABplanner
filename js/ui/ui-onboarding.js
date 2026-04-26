@@ -1,20 +1,23 @@
 /**
- * ui-onboarding.js — first-run onboarding overlay.
+ * ui-onboarding.js
  *
- * Renders as a full-screen overlay (not a sidebar panel).
- * Shows once when no saved plan exists. Presents three paths:
- *   A — Starting fresh (optionally with suggested pathway)
- *   B — Part way through (pre-populate completed subjects)
- *   C — Specific subjects only (hide unwanted subjects)
+ * Two distinct flows:
+ *
+ *   showOnboardingIfNeeded(onComplete)
+ *     — First-run setup wizard (path A / B / C).
+ *     — Shown once on first visit. Calls onComplete() when finished.
+ *     — Writes lpab_onboarding_done to localStorage via markOnboardingDone().
+ *
+ *   showOnboarding()
+ *     — Tile-based help tour. Triggered by the Help / Tour button.
+ *     — Can be shown any number of times. No onComplete needed.
+ *     — Uses the existing #onboarding-overlay HTML structure.
  *
  * Design rules:
- *   - No emoji in tiles or headings
- *   - Large, readable tiles with clear labels
- *   - Full-screen centred layout via .ob-overlay CSS class
- *   - Consistent with planner.css design tokens
- *
- * After onboarding, calls onComplete() to trigger the main app render.
- * Never touches the DOM outside #onboarding-overlay.
+ *   - No emoji in headings or tiles.
+ *   - Wizard renders its own HTML inside #onboarding-overlay (innerHTML).
+ *   - Tour uses the fixed HTML structure already in index.html.
+ *   - Neither function touches the DOM outside #onboarding-overlay.
  */
 
 import { subjects, currentTerm } from '../../subjects.js';
@@ -22,24 +25,27 @@ import { PlannerState } from '../state/planner-state.js';
 import { markOnboardingDone } from '../state/storage.js';
 import { SUGGESTED_PATHWAY, generateTermSequence } from '../data/suggested-pathway.js';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FIRST-RUN WIZARD  (showOnboardingIfNeeded)
+// ─────────────────────────────────────────────────────────────────────────────
+
 const GROUPS = [
     { key: 'core',       label: 'Core Subjects',       note: 'Must be taken in sequence — subjects 01 to 11' },
     { key: 'compulsory', label: 'Compulsory Subjects',  note: 'Mandatory — may be completed in any order' },
     { key: 'elective',   label: 'Elective Subjects',    note: 'Choose any 3' },
 ];
 
-// ── Public entry point ────────────────────────────────────────────────────────
-
 export function showOnboardingIfNeeded(onComplete) {
     const overlay = document.getElementById('onboarding-overlay');
-    if (!overlay) { onComplete(); return; }
+    if (!overlay) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+    }
     overlay.className = 'ob-overlay';
-    showStep(overlay, 'path-select', onComplete);
+    showWizardStep(overlay, 'path-select', onComplete);
 }
 
-// ── Step router ───────────────────────────────────────────────────────────────
-
-function showStep(overlay, step, onComplete, ctx = {}) {
+function showWizardStep(overlay, step, onComplete, ctx = {}) {
     overlay.innerHTML = '';
     overlay.style.display = 'flex';
 
@@ -55,7 +61,7 @@ function showStep(overlay, step, onComplete, ctx = {}) {
     (steps[step] || renderPathSelect)(overlay, onComplete, ctx);
 }
 
-// ── Step: Choose a path ────────────────────────────────────────────────────────
+// ── Step: Choose a path ───────────────────────────────────────────────────────
 
 function renderPathSelect(overlay, onComplete) {
     overlay.innerHTML = `
@@ -84,14 +90,14 @@ function renderPathSelect(overlay, onComplete) {
     overlay.querySelectorAll('.ob-path-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const path = btn.dataset.path;
-            if (path === 'A') showStep(overlay, 'pathway-confirm', onComplete);
-            if (path === 'B') showStep(overlay, 'completed-pick',  onComplete);
-            if (path === 'C') showStep(overlay, 'subject-pick',    onComplete);
+            if (path === 'A') showWizardStep(overlay, 'pathway-confirm', onComplete);
+            if (path === 'B') showWizardStep(overlay, 'completed-pick',  onComplete);
+            if (path === 'C') showWizardStep(overlay, 'subject-pick',    onComplete);
         });
     });
 }
 
-// ── Path A: Suggested pathway confirm ─────────────────────────────────────────
+// ── Path A: Suggested pathway ─────────────────────────────────────────────────
 
 function renderPathwayConfirm(overlay, onComplete) {
     const terms = generateTermSequence(currentTerm);
@@ -114,7 +120,7 @@ function renderPathwayConfirm(overlay, onComplete) {
                     const subjectChips = sem.subjects.map(id => {
                         const s = subjects.find(sub => sub.id === id);
                         return s
-                            ? `<span class="ob-chip ob-chip--${s.group}">${s.id} &nbsp;${s.name}</span>`
+                            ? `<span class="ob-chip ob-chip--${s.group}">${s.id}&nbsp;${s.name}</span>`
                             : '';
                     }).join('');
                     const electiveChips = Array.from(
@@ -140,11 +146,11 @@ function renderPathwayConfirm(overlay, onComplete) {
         </div>
     `;
 
-    overlay.querySelector('#ob-back').addEventListener('click',  () => showStep(overlay, 'path-select', onComplete));
-    overlay.querySelector('#ob-blank').addEventListener('click', () => finish(overlay, onComplete));
+    overlay.querySelector('#ob-back').addEventListener('click',  () => showWizardStep(overlay, 'path-select', onComplete));
+    overlay.querySelector('#ob-blank').addEventListener('click', () => finishWizard(overlay, onComplete));
     overlay.querySelector('#ob-apply').addEventListener('click', () => {
         applyPathway(terms);
-        finish(overlay, onComplete);
+        finishWizard(overlay, onComplete);
     });
 }
 
@@ -155,11 +161,10 @@ function applyPathway(terms) {
             const subject = subjects.find(s => s.id === id);
             if (subject) PlannerState.addSubject(termId, subject);
         });
-        // Elective slots are left empty — board renders them as open drop targets
     });
 }
 
-// ── Path B: Pick completed subjects ────────────────────────────────────────────
+// ── Path B: Pick completed subjects ──────────────────────────────────────────
 
 function renderCompletedPick(overlay, onComplete) {
     overlay.innerHTML = `
@@ -168,7 +173,9 @@ function renderCompletedPick(overlay, onComplete) {
                 <h2 class="ob-title">Which subjects have you completed?</h2>
                 <p class="ob-subtitle">These will be moved to your Completed section. Tick all that apply.</p>
             </div>
-            ${renderGroupedCheckboxes('ob-completed', false)}
+            <div class="ob-groups-scroll">
+                ${renderGroupedCheckboxes('ob-completed', false)}
+            </div>
             <div class="ob-actions">
                 <button class="ob-btn ob-btn--secondary" id="ob-back">Back</button>
                 <button class="ob-btn ob-btn--primary"  id="ob-next">Next</button>
@@ -176,13 +183,13 @@ function renderCompletedPick(overlay, onComplete) {
         </div>
     `;
 
-    overlay.querySelector('#ob-back').addEventListener('click', () => showStep(overlay, 'path-select', onComplete));
+    overlay.querySelector('#ob-back').addEventListener('click', () => showWizardStep(overlay, 'path-select', onComplete));
     overlay.querySelector('#ob-next').addEventListener('click', () => {
         const checked = getCheckedIds(overlay, 'ob-completed');
         if (checked.length === 0) {
-            finish(overlay, onComplete);
+            finishWizard(overlay, onComplete);
         } else {
-            showStep(overlay, 'confirm-b', onComplete, { checked });
+            showWizardStep(overlay, 'confirm-b', onComplete, { checked });
         }
     });
 }
@@ -209,22 +216,17 @@ function renderConfirmB(overlay, onComplete, ctx) {
         </div>
     `;
 
-    overlay.querySelector('#ob-back').addEventListener('click',    () => showStep(overlay, 'completed-pick', onComplete));
+    overlay.querySelector('#ob-back').addEventListener('click',    () => showWizardStep(overlay, 'completed-pick', onComplete));
     overlay.querySelector('#ob-confirm').addEventListener('click', () => {
         ctx.checked.forEach(id => {
             const subject = subjects.find(s => s.id === id);
             if (subject) PlannerState.addSubject('completed', subject);
         });
-        finish(overlay, onComplete);
+        finishWizard(overlay, onComplete);
     });
 }
 
-// ── Path C: Pick subjects you ARE doing ───────────────────────────────────────
-//
-// Subjects are shown in three groups: Core, Compulsory, Elective.
-// All are checked by default. Unchecking a subject hides it from the pool,
-// but it remains visible here in a greyed "Hidden subjects" section so the
-// student can see what they are opting out of.
+// ── Path C: Pick subjects to include ─────────────────────────────────────────
 
 function renderSubjectPick(overlay, onComplete) {
     overlay.innerHTML = `
@@ -233,12 +235,13 @@ function renderSubjectPick(overlay, onComplete) {
                 <h2 class="ob-title">Which subjects are you doing?</h2>
                 <p class="ob-subtitle">
                     All subjects are selected by default. Uncheck any you will not be doing —
-                    they will be hidden from your pool but shown in a greyed section below
-                    and can be restored at any time.
+                    they will be hidden from your pool but can be restored at any time.
                 </p>
             </div>
-            ${renderGroupedCheckboxes('ob-doing', true)}
-            <div class="ob-hidden-preview" id="ob-hidden-preview" aria-live="polite"></div>
+            <div class="ob-groups-scroll">
+                ${renderGroupedCheckboxes('ob-doing', true)}
+                <div class="ob-hidden-preview" id="ob-hidden-preview" aria-live="polite"></div>
+            </div>
             <div class="ob-actions">
                 <button class="ob-btn ob-btn--secondary" id="ob-back">Back</button>
                 <button class="ob-btn ob-btn--primary"  id="ob-next">Next</button>
@@ -246,15 +249,11 @@ function renderSubjectPick(overlay, onComplete) {
         </div>
     `;
 
-    // Live-update the hidden preview as checkboxes change
     function updateHiddenPreview() {
         const uncheckedIds = [...overlay.querySelectorAll('input[name="ob-doing"]:not(:checked)')]
             .map(el => el.value);
         const preview = overlay.querySelector('#ob-hidden-preview');
-        if (uncheckedIds.length === 0) {
-            preview.innerHTML = '';
-            return;
-        }
+        if (uncheckedIds.length === 0) { preview.innerHTML = ''; return; }
         const grouped = GROUPS.map(g => {
             const items = uncheckedIds
                 .map(id => subjects.find(s => s.id === id))
@@ -264,9 +263,7 @@ function renderSubjectPick(overlay, onComplete) {
                 <div class="ob-hidden-group">
                     <span class="ob-hidden-group-label">${g.label} — hidden</span>
                     <div class="ob-hidden-chips">
-                        ${items.map(s =>
-                            `<span class="ob-chip ob-chip--hidden">${s.id}&nbsp;${s.name}</span>`
-                        ).join('')}
+                        ${items.map(s => `<span class="ob-chip ob-chip--hidden">${s.id}&nbsp;${s.name}</span>`).join('')}
                     </div>
                 </div>
             `;
@@ -283,11 +280,11 @@ function renderSubjectPick(overlay, onComplete) {
         cb.addEventListener('change', updateHiddenPreview);
     });
 
-    overlay.querySelector('#ob-back').addEventListener('click', () => showStep(overlay, 'path-select', onComplete));
+    overlay.querySelector('#ob-back').addEventListener('click', () => showWizardStep(overlay, 'path-select', onComplete));
     overlay.querySelector('#ob-next').addEventListener('click', () => {
         const doing  = getCheckedIds(overlay, 'ob-doing');
         const hidden = subjects.map(s => s.id).filter(id => !doing.includes(id));
-        showStep(overlay, 'confirm-c', onComplete, { doing, hidden });
+        showWizardStep(overlay, 'confirm-c', onComplete, { doing, hidden });
     });
 }
 
@@ -323,14 +320,14 @@ function renderConfirmC(overlay, onComplete, ctx) {
         </div>
     `;
 
-    overlay.querySelector('#ob-back').addEventListener('click',    () => showStep(overlay, 'subject-pick', onComplete));
+    overlay.querySelector('#ob-back').addEventListener('click',    () => showWizardStep(overlay, 'subject-pick', onComplete));
     overlay.querySelector('#ob-confirm').addEventListener('click', () => {
         PlannerState.setHidden(ctx.hidden);
-        finish(overlay, onComplete);
+        finishWizard(overlay, onComplete);
     });
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Wizard helpers ────────────────────────────────────────────────────────────
 
 function renderGroupedCheckboxes(namePrefix, defaultChecked) {
     return GROUPS.map(group => {
@@ -340,7 +337,7 @@ function renderGroupedCheckboxes(namePrefix, defaultChecked) {
             <label class="ob-check-row">
                 <input type="checkbox" name="${namePrefix}" value="${s.id}" ${defaultChecked ? 'checked' : ''}>
                 <span class="ob-check-name">${s.id}: ${s.name}</span>
-                <span class="ob-check-meta">${s.terms.join(' / ')} &nbsp;&middot;&nbsp; ${s.lecture}</span>
+                <span class="ob-check-meta">${s.terms.join(' / ')} &middot; ${s.lecture}</span>
             </label>
         `).join('');
         return `
@@ -360,93 +357,77 @@ function getCheckedIds(overlay, namePrefix) {
         .map(el => el.value);
 }
 
-function finish(overlay, onComplete) {
+function finishWizard(overlay, onComplete) {
     markOnboardingDone();
     overlay.style.display = 'none';
-    onComplete();
-// ui-onboarding.js — full-screen onboarding overlay wizard
-// Shown on first load of a session; re-triggerable via the Help button.
-// No emojis. Tile style matches existing .slot / .semester-card aesthetic.
-// No localStorage — uses an in-memory flag only.
+    overlay.innerHTML = '';
+    if (typeof onComplete === 'function') onComplete();
+}
 
-let _hasShownOnboarding = false;
+// ─────────────────────────────────────────────────────────────────────────────
+// HELP TOUR  (showOnboarding)
+// ─────────────────────────────────────────────────────────────────────────────
 
 const STEPS = [
     {
         title: 'Welcome to the LPAB Elective Planner',
         tiles: [
-            {
-                heading: 'Plan your diploma',
-                body: 'Map out every subject across your winter and summer semesters, from now until graduation.'
-            },
-            {
-                heading: 'Spot clashes instantly',
-                body: 'The planner highlights lecture-night and exam conflicts the moment they occur, so you can adjust before it matters.'
-            },
-            {
-                heading: 'Track your progress',
-                body: 'The progress bar at the top shows how many compulsory and elective subjects you have placed or completed.'
-            }
+            { heading: 'Plan your diploma',     body: 'Map out every subject across your winter and summer semesters, from now until graduation.' },
+            { heading: 'Spot clashes instantly', body: 'The planner highlights lecture-night and exam conflicts the moment they occur, so you can adjust before it matters.' },
+            { heading: 'Track your progress',   body: 'The progress bar at the top shows how many compulsory and elective subjects you have placed or completed.' },
         ]
     },
     {
         title: 'How to build your plan',
         tiles: [
-            {
-                heading: 'Browse the subject pool',
-                body: 'All available subjects are listed in the left-hand panel. Use the filter to narrow by semester, type, or lecture night.'
-            },
-            {
-                heading: 'Drag into a semester',
-                body: 'Drag any subject from the pool into the semester card where you intend to take it. Each semester holds a maximum of four subjects.'
-            },
-            {
-                heading: 'Mark subjects complete',
-                body: 'Once you have finished a subject, double-click its tile or press the Done button to move it to the Completed section.'
-            }
+            { heading: 'Browse the subject pool', body: 'All available subjects are listed in the left-hand panel. Use the filter to narrow by semester, type, or lecture night.' },
+            { heading: 'Drag into a semester',    body: 'Drag any subject from the pool into the semester card where you intend to take it. Each semester holds a maximum of four subjects.' },
+            { heading: 'Mark subjects complete',  body: 'Once you have finished a subject, double-click its tile or press the Done button to move it to the Completed section.' },
         ]
     },
     {
         title: 'Clashes and warnings',
         tiles: [
-            {
-                heading: 'Lecture clash',
-                body: 'Two subjects in the same semester sharing the same lecture night are highlighted with a red border. Move one to a different semester to resolve it.'
-            },
-            {
-                heading: 'Exam clash',
-                body: 'Subjects whose final exams overlap in time are also flagged. Check the exam date on each tile before confirming your choices.'
-            },
-            {
-                heading: 'Semester availability',
-                body: 'Some subjects run in winter only, others in summer only. Subjects greyed out in the pool cannot be taken in the currently selected semester.'
-            }
+            { heading: 'Lecture clash',        body: 'Two subjects in the same semester sharing the same lecture night are highlighted with a red border. Move one to a different semester to resolve it.' },
+            { heading: 'Exam clash',           body: 'Subjects whose final exams overlap in time are also flagged. Check the exam date on each tile before confirming your choices.' },
+            { heading: 'Semester availability', body: 'Some subjects run in winter only, others in summer only. Subjects greyed out in the pool cannot be taken in the currently selected semester.' },
         ]
     }
 ];
 
-export function showOnboardingIfNeeded() {
-    if (_hasShownOnboarding) return;
-    showOnboarding();
-}
-
 export function showOnboarding() {
-    _hasShownOnboarding = true;
-
     const overlay = document.getElementById('onboarding-overlay');
     if (!overlay) return;
 
+    // Restore the fixed HTML structure the tour relies on
+    overlay.className = '';
+    overlay.innerHTML = `
+        <div class="onboarding-modal">
+            <button id="onboarding-close" class="onboarding-close" aria-label="Close">&times;</button>
+            <h2 id="onboarding-title" class="onboarding-modal__title"></h2>
+            <div id="onboarding-tiles" class="onboarding-tiles"></div>
+            <div class="onboarding-footer">
+                <div class="onboarding-dots">
+                    ${STEPS.map(() => '<span class="onboarding-dot"></span>').join('')}
+                </div>
+                <div class="onboarding-footer__actions">
+                    <button id="onboarding-back" class="toolbar-btn btn-print onboarding-btn">Back</button>
+                    <button id="onboarding-next" class="toolbar-btn btn-export onboarding-btn">Next</button>
+                </div>
+            </div>
+        </div>
+    `;
+
     let currentStep = 0;
-    renderStep(currentStep);
+    renderTourStep(overlay, currentStep);
     overlay.style.display = 'flex';
     document.addEventListener('keydown', handleEscape);
 
-    function renderStep(stepIndex) {
+    function renderTourStep(overlay, stepIndex) {
         const step = STEPS[stepIndex];
+        overlay.querySelector('#onboarding-title').textContent = step.title;
 
-        document.getElementById('onboarding-title').textContent = step.title;
-
-        const tilesContainer = document.getElementById('onboarding-tiles');
+        const tilesContainer = overlay.querySelector('#onboarding-tiles');
         tilesContainer.innerHTML = '';
         step.tiles.forEach(tile => {
             const div = document.createElement('div');
@@ -458,45 +439,29 @@ export function showOnboarding() {
             tilesContainer.appendChild(div);
         });
 
-        // Step dots
-        const dots = document.querySelectorAll('.onboarding-dot');
-        dots.forEach((dot, i) => {
+        overlay.querySelectorAll('.onboarding-dot').forEach((dot, i) => {
             dot.classList.toggle('onboarding-dot--active', i === stepIndex);
         });
 
-        // Back button
-        const backBtn = document.getElementById('onboarding-back');
+        const backBtn = overlay.querySelector('#onboarding-back');
         backBtn.style.visibility = stepIndex === 0 ? 'hidden' : 'visible';
+        backBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderTourStep(overlay, currentStep); } };
 
-        // Next / Finish button
-        const nextBtn = document.getElementById('onboarding-next');
-        const isLast = stepIndex === STEPS.length - 1;
+        const nextBtn = overlay.querySelector('#onboarding-next');
+        const isLast  = stepIndex === STEPS.length - 1;
         nextBtn.textContent = isLast ? 'Get Started' : 'Next';
         nextBtn.onclick = () => {
-            if (isLast) {
-                closeOnboarding();
-            } else {
-                currentStep++;
-                renderStep(currentStep);
-            }
-        };
-
-        backBtn.onclick = () => {
-            if (currentStep > 0) {
-                currentStep--;
-                renderStep(currentStep);
-            }
+            if (isLast) { closeTour(); } else { currentStep++; renderTourStep(overlay, currentStep); }
         };
     }
 
-    function closeOnboarding() {
+    function closeTour() {
         overlay.style.display = 'none';
+        overlay.innerHTML = '';
         document.removeEventListener('keydown', handleEscape);
     }
 
-    function handleEscape(e) {
-        if (e.key === 'Escape') closeOnboarding();
-    }
+    function handleEscape(e) { if (e.key === 'Escape') closeTour(); }
 
-    document.getElementById('onboarding-close').onclick = closeOnboarding;
+    overlay.querySelector('#onboarding-close').onclick = closeTour;
 }
