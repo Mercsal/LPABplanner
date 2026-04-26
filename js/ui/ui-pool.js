@@ -24,13 +24,11 @@ export function renderSubjectPool() {
             e.dataTransfer.effectAllowed = 'move';
         };
 
-        div.ondblclick = () => {
-            handleAddSubject(subject, 'completed');
-        };
+        div.ondblclick = () => handleAddSubject(subject, 'completed');
 
         div.innerHTML = `
             <strong>${subject.id}: ${subject.name}</strong>
-            <div style="font-size: 0.85em; color: #64748b; margin-top: 4px;">
+            <div class="subject-meta">
                 Type: ${subject.type} | Term: ${subject.terms.join(', ')} <br> Night: ${subject.lecture}
             </div>
         `;
