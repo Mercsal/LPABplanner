@@ -2,13 +2,14 @@
 import { subjects, currentTerm } from '../../subjects.js';
 import { historicalExams } from '../../archive.js';
 import { PlannerState } from '../../planner.js';
+import { Engine } from '../../engine.js';
 import { renderSubjectPool } from './ui-pool.js';
 import { renderProgress } from './ui-progress.js';
 import { feedbackPanel, errorListEl } from './ui-main.js';
+import { createGradeBar } from './ui-stats.js';
 
 export function getExamText(subject, semesterId) {
     if (semesterId === 'completed') return '';
-
     const safeTerm = typeof currentTerm !== 'undefined' ? currentTerm : 'winter2026';
 
     if (semesterId === safeTerm) {
@@ -16,22 +17,20 @@ export function getExamText(subject, semesterId) {
     }
 
     let lastKnown = null;
-
     if (subject.exam) {
-        const termName = safeTerm.replace('winter', 'Winter ').replace('summer', 'Summer ');
+        const termName = safeTerm.replace('winter','Winter ').replace('summer','Summer ');
         lastKnown = `${subject.exam} (${termName})`;
     } else if (typeof historicalExams !== 'undefined') {
         const pastTerms = Object.keys(historicalExams).reverse();
         for (const term of pastTerms) {
             const pastSub = historicalExams[term].find(s => s.id === subject.id);
             if (pastSub && pastSub.exam) {
-                const termName = term.replace('winter', 'Winter ').replace('summer', 'Summer ');
+                const termName = term.replace('winter','Winter ').replace('summer','Summer ');
                 lastKnown = `${pastSub.exam} (${termName})`;
                 break;
             }
         }
     }
-
     return lastKnown ? `🕒 Last ran: ${lastKnown}` : '📝 Exam: TBA';
 }
 
@@ -39,21 +38,33 @@ export function handleAddSubject(subject, semesterId) {
     feedbackPanel.style.display = 'none';
     errorListEl.innerHTML = '';
 
+    // Core order warning — non-blocking
+    if (semesterId !== 'completed') {
+        const orderWarning = Engine.checkCoreOrder(subject.id, PlannerState.getPlan());
+        if (orderWarning) {
+            feedbackPanel.style.display = 'block';
+            feedbackPanel.className = 'warning';
+            const li = document.createElement('li');
+            li.innerHTML = `⚠️ ${orderWarning}`;
+            errorListEl.appendChild(li);
+        }
+    }
+
     const result = PlannerState.addSubject(semesterId, subject);
 
-    if (result.success) {
-        renderPlannerBoard();
-        renderSubjectPool();
-    } else {
+    if (!result.success) {
         feedbackPanel.style.display = 'block';
+        feedbackPanel.className = 'error';
+        errorListEl.innerHTML = '';
         result.errors.forEach(err => {
             const li = document.createElement('li');
             li.innerText = err;
             errorListEl.appendChild(li);
         });
-        renderPlannerBoard();
-        renderSubjectPool();
     }
+
+    renderPlannerBoard();
+    renderSubjectPool();
 }
 
 export function renderPlannerBoard() {
@@ -63,9 +74,9 @@ export function renderPlannerBoard() {
     dynamicContainer.innerHTML = '';
     completedSection.innerHTML = '';
 
-    completedSection.ondragover = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+    completedSection.ondragover  = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
     completedSection.ondragleave = (e) => { e.currentTarget.classList.remove('drag-over'); };
-    completedSection.ondrop = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, 'completed'); };
+    completedSection.ondrop      = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, 'completed'); };
 
     const completedSubjects = PlannerState.getSemester('completed');
     if (completedSubjects.length === 0) {
@@ -86,13 +97,10 @@ export function renderPlannerBoard() {
         year++;
     }
 
-    // Use getPlan() instead of the removed .plan property
     const plan = PlannerState.getPlan();
     let lastPopulatedIndex = -1;
     allTerms.forEach((term, index) => {
-        if (plan[term] && plan[term].length > 0) {
-            lastPopulatedIndex = index;
-        }
+        if (plan[term] && plan[term].length > 0) lastPopulatedIndex = index;
     });
 
     const termsToRender = allTerms.slice(0, Math.max(lastPopulatedIndex + 1 + extraSemestersNeeded, 1));
@@ -103,24 +111,20 @@ export function renderPlannerBoard() {
 
         const card = document.createElement('section');
         card.className = 'semester-card';
-        const titleName = semesterId.replace('winter', 'Winter ').replace('summer', 'Summer ');
+        const titleName = semesterId.replace('winter','Winter ').replace('summer','Summer ');
 
-        card.innerHTML = `
-            <h2>${titleName}</h2>
-            <div class="semester-slots"></div>
-        `;
+        card.innerHTML = `<h2>${titleName}</h2><div class="semester-slots"></div>`;
         const slotsContainer = card.querySelector('.semester-slots');
 
-        slotsContainer.ondragover = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+        slotsContainer.ondragover  = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
         slotsContainer.ondragleave = (e) => { e.currentTarget.classList.remove('drag-over'); };
-        slotsContainer.ondrop = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, semesterId); };
+        slotsContainer.ondrop      = (e) => { e.currentTarget.classList.remove('drag-over'); handleDrop(e, semesterId); };
 
         if (plannedSubjects.length === 0) {
             slotsContainer.innerHTML = `<div class="slots__empty">Drag subjects here (Max 4)</div>`;
         } else {
             plannedSubjects.forEach(subject => {
-                const subjectWarnings = clashData[subject.id];
-                slotsContainer.appendChild(createSubjectSlot(subject, semesterId, subjectWarnings));
+                slotsContainer.appendChild(createSubjectSlot(subject, semesterId, clashData[subject.id]));
             });
         }
 
@@ -134,14 +138,11 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
     const slot = document.createElement('div');
     const isClashing = subjectWarnings && subjectWarnings.length > 0;
     const sType = subject.type.toLowerCase();
+    const groupClass = subject.group === 'core' ? 'slot--core' :
+                       sType === 'compulsory'    ? 'slot--compulsory' :
+                                                   'slot--elective';
 
-    slot.className = 'slot';
-    if (isClashing) {
-        slot.classList.add('slot--clash');
-    } else {
-        slot.classList.add(sType === 'compulsory' ? 'slot--compulsory' : 'slot--elective');
-    }
-
+    slot.className = `slot ${isClashing ? 'slot--clash' : groupClass}`;
     slot.draggable = true;
     slot.ondragstart = (e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, source: semesterId }));
@@ -156,51 +157,49 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
     const completeBtnHtml = semesterId !== 'completed'
         ? `<button class="action-btn slot__btn--done" onclick="markCompleted('${semesterId}', '${subject.id}')">✓ Done</button>`
         : '';
-
     const lectureDisplay = semesterId !== 'completed'
-        ? `<div class="slot__lecture">📅 ${subject.lecture}</div>`
-        : '';
-
-    const examDisplayData = getExamText(subject, semesterId);
+        ? `<div class="slot__lecture">📅 ${subject.lecture}</div>` : '';
     const examDisplay = semesterId !== 'completed'
-        ? `<div class="slot__exam">${examDisplayData}</div>`
-        : '';
+        ? `<div class="slot__exam">${getExamText(subject, semesterId)}</div>` : '';
 
     let clashWarningHtml = '';
     if (isClashing) {
-        subjectWarnings.forEach(warning => {
-            clashWarningHtml += `<div class="slot__clash-warning">⚠️ ${warning}</div>`;
-        });
+        subjectWarnings.forEach(w => { clashWarningHtml += `<div class="slot__clash-warning">⚠️ ${w}</div>`; });
     }
 
+    const groupLabel = subject.group === 'core' ? 'Core' :
+                       subject.group === 'compulsory' ? 'Compulsory' : 'Elective';
+
     slot.innerHTML = `
-        <div style="text-align: center; width: 100%;">
+        <div style="text-align:center;width:100%;">
             <strong>${subject.name}</strong><br>
-            <span class="slot__type">${subject.type}</span>
-            ${lectureDisplay}
-            ${examDisplay}
-            ${clashWarningHtml}
+            <span class="slot__type">${groupLabel}</span>
+            ${lectureDisplay}${examDisplay}${clashWarningHtml}
             <div class="slot__actions">
                 ${completeBtnHtml}
                 <button class="action-btn slot__btn--remove" onclick="removeSubject('${semesterId}', '${subject.id}')">✕ Remove</button>
             </div>
         </div>
     `;
+
+    // Append grade bar below the inner content (only for non-completed slots)
+    if (semesterId !== 'completed') {
+        const gradeBar = createGradeBar(subject.id);
+        if (gradeBar) slot.querySelector('div').appendChild(gradeBar);
+    }
+
     return slot;
 }
 
 function handleDrop(event, targetSemesterId) {
     event.preventDefault();
-
     try {
         const data = JSON.parse(event.dataTransfer.getData('text/plain'));
         const subject = subjects.find(s => s.id === data.id);
         if (!subject) return;
-
         if (data.source !== 'pool' && data.source !== targetSemesterId) {
             PlannerState.removeSubject(data.source, data.id);
         }
-
         handleAddSubject(subject, targetSemesterId);
     } catch (err) {
         console.error('Drop failed:', err);

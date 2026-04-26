@@ -11,65 +11,60 @@
 
 import { Engine } from '../../engine.js';
 import { currentTerm } from '../../subjects.js';
-import { loadPlan, savePlan } from './storage.js';
+import {
+    loadPlan, savePlan, clearPlanOnly,
+    loadHiddenSubjects, saveHiddenSubjects
+} from './storage.js';
 
-// Internal plan object — mutated only through the methods below.
 let _plan = loadPlan();
+let _hidden = loadHiddenSubjects(); // string[] of subject IDs
 
 export const PlannerState = {
 
-    // ----------------------------------------------------------------
-    // Read
-    // ----------------------------------------------------------------
+    // ── Read ──────────────────────────────────────────────────────────────────
 
-    /**
-     * Return the full plan object (read-only reference).
-     * Use getSemester() for mutations — don't mutate this directly.
-     * @returns {object}
-     */
-    getPlan() {
-        return _plan;
-    },
+    getPlan() { return _plan; },
 
-    /**
-     * Return the subject array for a semester, creating it if absent.
-     * @param {string} id — e.g. 'winter2026' or 'completed'
-     * @returns {Array}
-     */
     getSemester(id) {
         if (!_plan[id]) _plan[id] = [];
         return _plan[id];
     },
 
-    /**
-     * Clash data for a single semester.
-     * @param {string} semesterId
-     * @returns {object} subjectId → string[] of clash messages
-     */
     getClashes(semesterId) {
         if (!_plan[semesterId]) return {};
         const safeTerm = currentTerm ?? 'winter2026';
         return Engine.getClashingSubjects(_plan[semesterId], semesterId, safeTerm);
     },
 
-    /**
-     * Overall diploma progress.
-     * @returns {{ compulsory, electives, readyToGraduate, totalSubjects, totalSubjectsList }}
-     */
     getProgress() {
         return Engine.calculateProgress(_plan);
     },
 
-    // ----------------------------------------------------------------
-    // Write
-    // ----------------------------------------------------------------
+    // ── Hidden subjects ───────────────────────────────────────────────────────
+
+    getHidden() { return [..._hidden]; },
+
+    setHidden(ids) {
+        _hidden = [...ids];
+        saveHiddenSubjects(_hidden);
+    },
+
+    restoreSubject(id) {
+        _hidden = _hidden.filter(hid => hid !== id);
+        saveHiddenSubjects(_hidden);
+    },
+
+    // ── Write ─────────────────────────────────────────────────────────────────
 
     /**
      * Add a subject to a semester.
-     * Validates availability and semester limits (except for 'completed').
-     * @param {string} semesterId
-     * @param {object} subject
-     * @returns {{ success: boolean, errors?: string[] }}
+     *
+     * Returns:
+     *   { success: false, errors: string[] }  — blocked (term mismatch, full semester, duplicate)
+     *   { success: true }                     — added, no issues
+     *   { success: true, warnings: string[] } — added, but has advisory warnings (e.g. core out-of-order)
+     *
+     * Warnings do NOT block the add. The UI should display them as amber notices.
      */
     addSubject(semesterId, subject) {
         const alreadyAdded = this.getProgress().totalSubjectsList.find(s => s.id === subject.id);
@@ -86,25 +81,22 @@ export const PlannerState = {
 
         target.push(subject);
         savePlan(_plan);
+
+        // Core sequence warning — does not block, returned alongside success
+        const coreWarning = Engine.checkCoreOrder(subject.id, _plan);
+        if (coreWarning) {
+            return { success: true, warnings: [coreWarning] };
+        }
+
         return { success: true };
     },
 
-    /**
-     * Remove a subject from a semester.
-     * @param {string} semesterId
-     * @param {string} subjectId
-     */
     removeSubject(semesterId, subjectId) {
         if (!_plan[semesterId]) return;
         _plan[semesterId] = _plan[semesterId].filter(s => s.id !== subjectId);
         savePlan(_plan);
     },
 
-    /**
-     * Move a subject from any semester into 'completed'.
-     * @param {string} semesterId
-     * @param {string} subjectId
-     */
     markCompleted(semesterId, subjectId) {
         if (!_plan[semesterId]) return;
         const idx = _plan[semesterId].findIndex(s => s.id === subjectId);
@@ -114,17 +106,24 @@ export const PlannerState = {
         savePlan(_plan);
     },
 
-    // ----------------------------------------------------------------
-    // Persistence (delegated — exposed here for compatibility)
-    // ----------------------------------------------------------------
+    // ── Reset ─────────────────────────────────────────────────────────────────
 
-    /** Re-load state from localStorage (e.g. after an external reset). */
-    loadData() {
-        _plan = loadPlan();
+    /**
+     * Clear all semester placements and completed subjects.
+     * Hidden subject preferences are preserved.
+     */
+    resetPlanOnly() {
+        _plan = { completed: [] };
+        clearPlanOnly();
+        savePlan(_plan);
     },
 
-    /** Force-save current state (rarely needed; writes happen automatically). */
-    saveData() {
-        savePlan(_plan);
-    }
+    // ── Persistence ───────────────────────────────────────────────────────────
+
+    loadData() {
+        _plan   = loadPlan();
+        _hidden = loadHiddenSubjects();
+    },
+
+    saveData() { savePlan(_plan); },
 };
