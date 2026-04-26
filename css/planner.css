@@ -54,6 +54,25 @@
     --shadow-slot:   0 1px 3px rgba(0,0,0,0.10);
     --shadow-pool:   0 1px 2px rgba(0,0,0,0.05);
     --shadow-tracker:0 4px 6px rgba(0,0,0,0.10);
+
+    /* ─── Stats colour tokens ───────────────────────────────────── */
+    --stats-fail:        #ef4444;
+    --stats-pass:        #86efac;
+    --stats-credit:      #4ade80;
+    --stats-distinction: #22c55e;
+    --stats-hd:          #15803d;
+
+    --stats-badge-low-bg:      #dcfce7;
+    --stats-badge-low-text:    #166534;
+    --stats-badge-low-border:  #4ade80;
+
+    --stats-badge-medium-bg:   #fef9c3;
+    --stats-badge-medium-text: #713f12;
+    --stats-badge-medium-border: #fbbf24;
+
+    --stats-badge-high-bg:     #fee2e2;
+    --stats-badge-high-text:   #7f1d1d;
+    --stats-badge-high-border: #ef4444;
 }
 
 /* ─── Dark mode tokens ────────────────────────────────────────── */
@@ -101,6 +120,24 @@
         --shadow-slot:   0 1px 3px rgba(0,0,0,0.4);
         --shadow-pool:   0 1px 2px rgba(0,0,0,0.3);
         --shadow-tracker:0 4px 6px rgba(0,0,0,0.4);
+
+        --stats-fail:        #f87171;
+        --stats-pass:        #4ade80;
+        --stats-credit:      #22c55e;
+        --stats-distinction: #16a34a;
+        --stats-hd:          #14532d;
+
+        --stats-badge-low-bg:      #052e16;
+        --stats-badge-low-text:    #4ade80;
+        --stats-badge-low-border:  #22c55e;
+
+        --stats-badge-medium-bg:   #1c1408;
+        --stats-badge-medium-text: #fbbf24;
+        --stats-badge-medium-border: #d97706;
+
+        --stats-badge-high-bg:     #2d0a0a;
+        --stats-badge-high-text:   #f87171;
+        --stats-badge-high-border: #ef4444;
     }
 }
 
@@ -146,6 +183,24 @@
     --shadow-slot:   0 1px 3px rgba(0,0,0,0.4);
     --shadow-pool:   0 1px 2px rgba(0,0,0,0.3);
     --shadow-tracker:0 4px 6px rgba(0,0,0,0.4);
+
+    --stats-fail:        #f87171;
+    --stats-pass:        #4ade80;
+    --stats-credit:      #22c55e;
+    --stats-distinction: #16a34a;
+    --stats-hd:          #14532d;
+
+    --stats-badge-low-bg:      #052e16;
+    --stats-badge-low-text:    #4ade80;
+    --stats-badge-low-border:  #22c55e;
+
+    --stats-badge-medium-bg:   #1c1408;
+    --stats-badge-medium-text: #fbbf24;
+    --stats-badge-medium-border: #d97706;
+
+    --stats-badge-high-bg:     #2d0a0a;
+    --stats-badge-high-text:   #f87171;
+    --stats-badge-high-border: #ef4444;
 }
 
 /* ─── Base layout ─────────────────────────────────────────────── */
@@ -189,6 +244,13 @@ body {
 }
 
 .subject-item:active { transform: scale(0.98); }
+
+.subject-item__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
 
 .subject-item .subject-meta {
     font-size: 0.85em;
@@ -430,9 +492,147 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   STATS COMPONENTS
+   ════════════════════════════════════════════════════════════════ */
+
+/* ─── Difficulty badge (pool items) ──────────────────────────── */
+.stats-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 0.72em;
+    font-weight: 700;
+    white-space: nowrap;
+    border-width: 1px;
+    border-style: solid;
+    flex-shrink: 0;
+}
+
+.stats-badge--low {
+    background: var(--stats-badge-low-bg);
+    color: var(--stats-badge-low-text);
+    border-color: var(--stats-badge-low-border);
+}
+
+.stats-badge--medium {
+    background: var(--stats-badge-medium-bg);
+    color: var(--stats-badge-medium-text);
+    border-color: var(--stats-badge-medium-border);
+}
+
+.stats-badge--high {
+    background: var(--stats-badge-high-bg);
+    color: var(--stats-badge-high-text);
+    border-color: var(--stats-badge-high-border);
+}
+
+/* ─── Grade bar (board slots) ────────────────────────────────── */
+.stats-bar {
+    margin-top: 8px;
+    text-align: left;
+    width: 100%;
+}
+
+.stats-bar__summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    list-style: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.stats-bar__summary::-webkit-details-marker { display: none; }
+
+.stats-bar__track {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    background: var(--color-border);
+}
+
+.stats-bar__seg {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.stats-bar__term {
+    font-size: 0.68em;
+    color: var(--color-text-faint);
+    white-space: nowrap;
+}
+
+/* Expanded legend */
+.stats-bar__legend {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: var(--color-surface-offset);
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.stats-bar__legend-item {
+    font-size: 0.72em;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stats-bar__dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.stats-bar__dns-note {
+    font-size: 0.7em;
+    color: var(--color-warning);
+    margin: 4px 0 0;
+}
+
+/* ─── History table ───────────────────────────────────────────── */
+.stats-history {
+    margin-top: 6px;
+    overflow-x: auto;
+}
+
+.stats-history__table {
+    width: 100%;
+    font-size: 0.75em;
+    border-collapse: collapse;
+    color: var(--color-text-muted);
+}
+
+.stats-history__table th,
+.stats-history__table td {
+    padding: 3px 6px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.stats-history__table th {
+    font-weight: 600;
+    color: var(--color-text-faint);
+    font-size: 0.9em;
+}
+
+.stats-history__fail { font-weight: 700; font-variant-numeric: tabular-nums; }
+.stats-history__fail--low        { color: var(--stats-badge-low-text); }
+.stats-history__fail--medium     { color: var(--stats-badge-medium-text); }
+.stats-history__fail--high       { color: var(--stats-badge-high-text); }
+.stats-history__sat  { color: var(--color-text-faint); font-variant-numeric: tabular-nums; }
+
+/* ════════════════════════════════════════════════════════════════
    ONBOARDING OVERLAY
-   Full-screen centred overlay — sits above everything.
-   .ob-overlay is set on #onboarding-overlay by ui-onboarding.js.
    ════════════════════════════════════════════════════════════════ */
 
 .ob-overlay {
@@ -448,7 +648,6 @@ body {
     overflow-y: auto;
 }
 
-/* Central content card */
 .ob-card {
     background: var(--color-surface);
     border-radius: 12px;
@@ -465,7 +664,6 @@ body {
     max-width: 780px;
 }
 
-/* Header block */
 .ob-header {
     display: flex;
     flex-direction: column;
@@ -488,7 +686,6 @@ body {
     max-width: 56ch;
 }
 
-/* ─── Path selection tiles ────────────────────────────────────── */
 .ob-paths {
     display: flex;
     flex-direction: column;
@@ -531,7 +728,6 @@ body {
     color: var(--color-text-muted);
 }
 
-/* ─── Action buttons ──────────────────────────────────────────── */
 .ob-actions {
     display: flex;
     gap: 12px;
@@ -581,7 +777,6 @@ body {
 }
 .ob-btn--danger:hover { opacity: 0.85; }
 
-/* ─── Grouped checkbox lists ──────────────────────────────────── */
 .ob-group {
     border: 1px solid var(--color-border);
     border-radius: 8px;
@@ -644,7 +839,6 @@ body {
     white-space: nowrap;
 }
 
-/* ─── Pathway preview ─────────────────────────────────────────── */
 .ob-pathway-preview {
     display: flex;
     flex-direction: column;
@@ -690,7 +884,6 @@ body {
     gap: 6px;
 }
 
-/* ─── Subject chips ───────────────────────────────────────────── */
 .ob-chip {
     display: inline-block;
     padding: 3px 10px;
@@ -731,7 +924,6 @@ body {
     opacity: 0.7;
 }
 
-/* ─── Hidden subjects live preview (Path C) ───────────────────── */
 .ob-hidden-section {
     margin-top: 8px;
     border: 1px solid var(--color-warning-border);
@@ -769,7 +961,6 @@ body {
     gap: 6px;
 }
 
-/* ─── Confirm lists ───────────────────────────────────────────── */
 .ob-confirm-list {
     list-style: none;
     padding: 0;
@@ -807,7 +998,6 @@ body {
     margin: 0;
 }
 
-/* ─── Modal (reset dialog, shared pattern) ────────────────────── */
 .ob-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -845,7 +1035,6 @@ body {
     margin: 0;
 }
 
-/* ─── Reset option tiles ──────────────────────────────────────── */
 .ob-reset-options {
     display: flex;
     flex-direction: column;
@@ -888,7 +1077,6 @@ body {
     line-height: 1.4;
 }
 
-/* ─── Reset step 2 inline confirm ─────────────────────────────── */
 .ob-reset-confirm {
     padding: 16px;
     background: var(--color-clash-bg);
@@ -903,7 +1091,6 @@ body {
     line-height: 1.5;
 }
 
-/* ─── Toast notification ──────────────────────────────────────── */
 .ob-toast {
     position: fixed;
     bottom: 24px;
@@ -936,7 +1123,8 @@ body {
     body { background: white; padding: 0; display: block; }
     #subject-pool, #feedback-panel, .toolbar-btn, .progress-bar-bg,
     .action-btn, #completed-section, #theme-toggle,
-    .ob-overlay, .ob-modal-backdrop { display: none !important; }
+    .ob-overlay, .ob-modal-backdrop,
+    .stats-badge, .stats-bar, .stats-history { display: none !important; }
     #planner-board { gap: 10px; width: 100%; }
     #progress-tracker {
         background: transparent; color: black; padding: 0;

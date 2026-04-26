@@ -6,6 +6,7 @@ import { Engine } from '../../engine.js';
 import { renderSubjectPool } from './ui-pool.js';
 import { renderProgress } from './ui-progress.js';
 import { feedbackPanel, errorListEl } from './ui-main.js';
+import { createGradeBar } from './ui-stats.js';
 
 export function getExamText(subject, semesterId) {
     if (semesterId === 'completed') return '';
@@ -180,6 +181,13 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
             </div>
         </div>
     `;
+
+    // Append grade bar below the inner content (only for non-completed slots)
+    if (semesterId !== 'completed') {
+        const gradeBar = createGradeBar(subject.id);
+        if (gradeBar) slot.querySelector('div').appendChild(gradeBar);
+    }
+
     return slot;
 }
 

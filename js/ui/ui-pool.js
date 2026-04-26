@@ -2,6 +2,7 @@
 import { subjects } from '../../subjects.js';
 import { PlannerState } from '../../planner.js';
 import { handleAddSubject } from './ui-board.js';
+import { createDifficultyBadge } from './ui-stats.js';
 
 const subjectListEl = document.getElementById('subject-list');
 
@@ -62,12 +63,23 @@ function createPoolItem(subject, isHidden = false) {
     const groupLabel = subject.group === 'core' ? 'Core' :
                        subject.group === 'compulsory' ? 'Compulsory' : 'Elective';
 
-    div.innerHTML = `
-        <strong>${subject.id}: ${subject.name}</strong>
-        <div class="subject-meta">
-            ${groupLabel} | ${subject.terms.join(', ')} · ${subject.lecture}
-        </div>
-    `;
+    // Header row: name left, difficulty badge right
+    const header = document.createElement('div');
+    header.className = 'subject-item__header';
+
+    const nameEl = document.createElement('strong');
+    nameEl.textContent = `${subject.id}: ${subject.name}`;
+    header.appendChild(nameEl);
+
+    const badge = createDifficultyBadge(subject.id);
+    if (badge) header.appendChild(badge);
+
+    div.appendChild(header);
+
+    const meta = document.createElement('div');
+    meta.className = 'subject-meta';
+    meta.textContent = `${groupLabel} | ${subject.terms.join(', ')} · ${subject.lecture}`;
+    div.appendChild(meta);
 
     return div;
 }
