@@ -41,9 +41,9 @@
 
     <main id="planner-board">
         <section id="progress-tracker">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <h2 style="margin: 0 0 10px 0;">Diploma Progress</h2>
-                <div style="display: flex; gap: 10px;">
+            <div class="progress-header">
+                <h2 class="progress-header__title">Diploma Progress</h2>
+                <div class="progress-toolbar">
                     <button id="theme-toggle" aria-label="Switch to dark mode">&#9790;</button>
                     <button id="reset-btn"    class="toolbar-btn btn-reset">Reset Plan</button>
                     <button id="export-btn"   class="toolbar-btn btn-export">Copy to Text</button>
@@ -52,13 +52,13 @@
                 </div>
             </div>
             <div class="progress-row">
-                <div style="display: flex; justify-content: space-between;">
+                <div class="progress-row__label">
                     <span>Compulsory Subjects</span><span id="compulsory-text">0 / 17</span>
                 </div>
                 <div class="progress-bar-bg"><div id="compulsory-bar" class="progress-bar-fill" style="width: 0%;"></div></div>
             </div>
             <div class="progress-row">
-                <div style="display: flex; justify-content: space-between;">
+                <div class="progress-row__label">
                     <span>Elective Subjects</span><span id="elective-text">0 / 3</span>
                 </div>
                 <div class="progress-bar-bg"><div id="elective-bar" class="progress-bar-fill elective-fill" style="width: 0%;"></div></div>
@@ -70,10 +70,10 @@
 
         <section class="semester-card" id="completed-section">
             <h2>Already Completed</h2>
-            <div class="semester-slots" id="completed-slots" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));"></div>
+            <div class="semester-slots" id="completed-slots"></div>
         </section>
 
-        <div id="dynamic-semesters" style="display: flex; flex-direction: column; gap: 20px;"></div>
+        <div id="dynamic-semesters"></div>
     </main>
 
     <script type="module" src="./js/ui/ui-main.js"></script>
