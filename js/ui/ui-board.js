@@ -9,6 +9,10 @@ import { feedbackPanel, errorListEl } from './ui-main.js';
 import { createGradeBar } from './ui-stats.js';
 import { initTouchDnD } from './ui-touch-dnd.js';
 
+// Stage 2: detect whether the primary input is touch so we can skip the
+// dblclick shortcut (which misfires as a zoom gesture on mobile).
+const isTouchPrimary = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 export function getExamText(subject, semesterId) {
     if (semesterId === 'completed') return '';
     const safeTerm = typeof currentTerm !== 'undefined' ? currentTerm : 'winter2026';
@@ -156,7 +160,9 @@ function createSubjectSlot(subject, semesterId, subjectWarnings) {
         e.dataTransfer.effectAllowed = 'move';
     };
 
-    if (semesterId !== 'completed') {
+    // Stage 2: only attach dblclick on non-touch devices to avoid triggering
+    // the browser's double-tap-to-zoom gesture on mobile.
+    if (semesterId !== 'completed' && !isTouchPrimary) {
         slot.title = 'Double-Click to mark as Completed';
         slot.ondblclick = () => window.markCompleted(semesterId, subject.id);
     }

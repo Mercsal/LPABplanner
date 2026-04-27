@@ -6,10 +6,10 @@ import { subjects } from '../../subjects.js';
 import { PlannerState } from '../../planner.js';
 import { handleAddSubject } from './ui-board.js';
 
-// ─── State ────────────────────────────────────────────────────────
+// ─── State ──────────────────────────────────────────────────────
 let dragState = null; // { subjectId, sourceId, ghost, originEl }
 
-// ─── Ghost element ────────────────────────────────────────────────
+// ─── Ghost element ────────────────────────────────────────────
 function getOrCreateGhost() {
     let ghost = document.getElementById('touch-drag-ghost');
     if (!ghost) {
@@ -33,7 +33,7 @@ function hideGhost() {
     if (ghost) ghost.style.display = 'none';
 }
 
-// ─── Drop target detection ────────────────────────────────────────
+// ─── Drop target detection ──────────────────────────────────────
 function getDropTarget(x, y) {
     // Temporarily hide ghost so elementFromPoint works through it
     const ghost = document.getElementById('touch-drag-ghost');
@@ -67,7 +67,7 @@ function semesterIdFromContainer(container) {
     return heading.textContent.trim().replace(' ', '').toLowerCase();
 }
 
-// ─── Highlight helpers ────────────────────────────────────────────
+// ─── Highlight helpers ─────────────────────────────────────────
 let lastHighlighted = null;
 
 function highlightTarget(container) {
@@ -87,7 +87,7 @@ function clearHighlight() {
     }
 }
 
-// ─── Pointer event handlers ───────────────────────────────────────
+// ─── Pointer event handlers ─────────────────────────────────────
 function onPointerDown(e) {
     // Only respond to touch/pen; mouse uses native HTML5 DnD
     if (e.pointerType === 'mouse') return;
@@ -151,7 +151,7 @@ function onPointerCancel(e) {
     dragState = null;
 }
 
-// ─── Public API ───────────────────────────────────────────────────
+// ─── Public API ─────────────────────────────────────────────────
 /**
  * Call this after every render to attach touch DnD to all draggable elements.
  * Safe to call multiple times — uses replaceWith to avoid duplicate listeners.
@@ -173,10 +173,9 @@ export function initTouchDnD() {
 }
 
 function attachTouchHandlers(el) {
-    // Remove and re-add to avoid duplicates after re-render
-    el.removeEventListener('pointerdown', onPointerDown);
-    el.removeEventListener('pointermove', onPointerMove);
-    el.removeEventListener('pointerup',   onPointerUp);
+    el.removeEventListener('pointerdown',   onPointerDown);
+    el.removeEventListener('pointermove',   onPointerMove);
+    el.removeEventListener('pointerup',     onPointerUp);
     el.removeEventListener('pointercancel', onPointerCancel);
 
     el.addEventListener('pointerdown',   onPointerDown,   { passive: false });
@@ -184,7 +183,10 @@ function attachTouchHandlers(el) {
     el.addEventListener('pointerup',     onPointerUp);
     el.addEventListener('pointercancel', onPointerCancel);
 
-    // Prevent long-press context menu interfering with drag
-    el.style.touchAction = 'none';
+    // Stage 2: touch-action and user-select are now declared in planner.css
+    // on .subject-item and .slot so they apply on first paint. The JS
+    // assignments below are kept only as a belt-and-suspenders fallback for
+    // dynamically-created elements that may not yet have those classes.
+    el.style.touchAction      = 'none';
     el.style.webkitUserSelect = 'none';
 }

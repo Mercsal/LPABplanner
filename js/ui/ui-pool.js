@@ -5,6 +5,10 @@ import { handleAddSubject } from './ui-board.js';
 import { createDifficultyBadge } from './ui-stats.js';
 import { initTouchDnD } from './ui-touch-dnd.js';
 
+// Stage 2: detect whether the primary input is touch so we can skip the
+// dblclick shortcut (which misfires as a zoom gesture on mobile).
+const isTouchPrimary = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 const subjectListEl = document.getElementById('subject-list');
 
 export function renderSubjectPool() {
@@ -59,12 +63,16 @@ function createPoolItem(subject, isHidden = false) {
     div.dataset.sourceId  = 'pool';
 
     if (!isHidden) {
-        div.title = 'Drag to a semester, or Double-Click to mark as Completed';
         div.ondragstart = (e) => {
             e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, source: 'pool' }));
             e.dataTransfer.effectAllowed = 'move';
         };
-        div.ondblclick = () => handleAddSubject(subject, 'completed');
+        // Stage 2: only attach dblclick on non-touch devices to avoid triggering
+        // the browser's double-tap-to-zoom gesture on mobile.
+        if (!isTouchPrimary) {
+            div.title    = 'Drag to a semester, or Double-Click to mark as Completed';
+            div.ondblclick = () => handleAddSubject(subject, 'completed');
+        }
     }
 
     const groupLabel = subject.group === 'core' ? 'Core' :
