@@ -8,6 +8,9 @@ import { renderProgress } from './ui-progress.js';
 import { feedbackPanel, errorListEl } from './ui-main.js';
 import { createGradeBar } from './ui-stats.js';
 import { initTouchDnD } from './ui-touch-dnd.js';
+// Stage 3: import showToast so touch drop errors surface near the user's
+// finger regardless of how far the feedback panel has scrolled off-screen.
+import { showToast } from './ui-toolbar.js';
 
 // Stage 2: detect whether the primary input is touch so we can skip the
 // dblclick shortcut (which misfires as a zoom gesture on mobile).
@@ -66,6 +69,11 @@ export function handleAddSubject(subject, semesterId) {
             li.innerText = err;
             errorListEl.appendChild(li);
         });
+        // Stage 3: on touch devices the feedback panel is likely off-screen;
+        // fire a toast so the error is visible near the top of the viewport.
+        if (isTouchPrimary && result.errors.length > 0) {
+            showToast(result.errors[0], true);
+        }
     }
 
     renderPlannerBoard();

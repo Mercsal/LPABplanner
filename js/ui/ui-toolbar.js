@@ -140,7 +140,15 @@ function showResetModal() {
     });
 }
 
-function showToast(message, isError = false) {
+/**
+ * Show a brief fixed-position toast message.
+ * Stage 3: exported so ui-board.js can fire toasts for touch drop errors,
+ * keeping feedback visible regardless of scroll position.
+ *
+ * @param {string}  message  Text to display.
+ * @param {boolean} isError  When true, renders with error styling.
+ */
+export function showToast(message, isError = false) {
     const existing = document.getElementById('ob-toast');
     if (existing) existing.remove();
     const toast = document.createElement('div');
