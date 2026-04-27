@@ -245,6 +245,9 @@ body {
     color: var(--color-text);
     user-select: none;
     transition: transform 0.1s;
+    /* Stage 1: declare touch-action in CSS so it is applied on first paint,
+       before initTouchDnD() fires. JS still sets it as a fallback. */
+    touch-action: none;
 }
 
 .subject-item:active { transform: scale(0.98); }
@@ -369,6 +372,8 @@ body {
     box-shadow: var(--shadow-slot);
     user-select: none;
     cursor: grab;
+    /* Stage 1: touch-action in CSS for immediate effect on first paint */
+    touch-action: none;
 }
 
 .slot--core {
@@ -906,11 +911,15 @@ body {
     white-space: nowrap;
 }
 
+/* Stage 1: ob-pathway-preview uses flex growth instead of a fixed
+   max-height so it fills the available card space naturally on all
+   screen sizes rather than clipping content on short viewports. */
 .ob-pathway-preview {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 380px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     border: 1px solid var(--color-border);
     border-radius: 8px;
@@ -1358,9 +1367,11 @@ body {
 
     #subject-pool {
         width: 100%;
-        max-height: 50vh;
+        max-height: 40vh;
         position: static;
         order: 2; /* pool appears below planner on mobile */
+        /* Stage 1: fade hint indicating the pool is scrollable */
+        box-shadow: var(--shadow-card), inset 0 -24px 20px -20px rgba(0,0,0,0.10);
     }
 
     #planner-board {
@@ -1411,4 +1422,12 @@ body {
 
     /* Print btn hidden on mobile (printing from phone is rare) */
     .btn-print { display: none; }
+}
+
+/* Stage 1: single-column slots on very narrow phones (≤480px).
+   Keeps slot content readable without horizontal overflow. */
+@media (max-width: 480px) {
+    .semester-slots {
+        grid-template-columns: 1fr;
+    }
 }
